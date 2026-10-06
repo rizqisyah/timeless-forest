@@ -42,12 +42,56 @@ jsx = jsx.replace("className=", "class=")
 jsx = re.sub(r"src=\{(\w+)\}", lambda m: f'src="{assets[m[1]]}"', jsx)
 
 
+# Figma's drop shadow on an image layer follows the image's alpha; the reference code emits a
+# box-shadow, which paints a rectangle (a visible slab behind the closing frame, 2246:248).
+# On a div that directly wraps an <img>, re-express each outer shadow as a drop-shadow().
+def drop_shadow(m):
+    cls, rest = m[1], m[2]
+    sh = re.search(r"shadow-\[([^\]]+)\]", cls)
+    if not sh or "inset" in sh[1]:
+        return m[0]
+    parts = re.split(r",(?![^()]*\))", sh[1])
+    filters = []
+    for p in parts:
+        x, y, blur, _spread, color = p.split("_", 4)
+        filters.append(f"drop-shadow({x} {y} {blur} {color})")
+    cls = cls.replace(sh[0], "").strip()
+    return f'<div class="{cls}" style="filter:{" ".join(filters)}"{rest}><img'
+
+
+jsx = re.sub(r'<div class="([^"]*shadow-\[[^"]*)"([^>]*)>\s*<img', drop_shadow, jsx)
+
+
+# Lace whose mesh is mostly near-transparent: an alpha mask would blur almost nothing between
+# the threads, leaving the paper/photo edge behind the lace hard where Figma frosts it
+# (the two laces beside the thank-you seal, 2249:277 / 2333:61). These get a silhouette mask:
+# coverage dilated, holes closed, edges softened.
+SILHOUETTE_MASKS = {"2ff90.png"}
+
+
+def silhouette(url):
+    from PIL import Image, ImageFilter
+
+    name = url.rsplit("/", 1)[1]
+    out = local / f"mask-{name}"
+    if not out.exists():
+        alpha = Image.open(local / name).convert("RGBA").split()[3]
+        cover = alpha.point(lambda v: 255 if v > 8 else 0)
+        cover = cover.filter(ImageFilter.MaxFilter(9)).filter(ImageFilter.MinFilter(5))
+        cover = cover.filter(ImageFilter.GaussianBlur(3))
+        mask = Image.new("RGBA", alpha.size, (0, 0, 0, 0))
+        mask.putalpha(cover)
+        mask.save(out)
+    return f"/.figma-tmp/assets/mask-{name}"
+
+
 # Figma's background blur only acts behind the layer's opaque pixels; a bare CSS
 # backdrop-filter blurs the whole box. Mask a blurred backdrop layer with the image itself.
 def backdrop(m):
     cls, radius, rest, url = m[1], m[2], m[3], m[4]
     fit = "cover" if "object-cover" in cls + rest else "100% 100%"
-    mask = f"url({url}) center/{fit} no-repeat"
+    mask_url = silhouette(url) if url.rsplit("/", 1)[1] in SILHOUETTE_MASKS else url
+    mask = f"url({mask_url}) center/{fit} no-repeat"
     layer = f'<div class="absolute inset-0" style="backdrop-filter:blur({radius});-webkit-mask:{mask};mask:{mask}"></div>'
     return layer + f'<img alt="" class="{cls}{rest}" src="{url}" />'
 
