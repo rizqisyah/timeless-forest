@@ -1,0 +1,51 @@
+:root {
+  /*
+   * Animation tempo. Every entrance, loop and transition is multiplied by this:
+   * 1 = base speed, 1.5 = half again as slow, 2 = twice as slow.
+   * ?motion=2 in the URL overrides it for a quick preview (see main.ts).
+   */
+  --motion: 1.4;
+
+  --bg-body: #1a1a1a;
+  /* desktop backdrop around the phone column */
+  --card-max: 430px;
+
+  /* Frame 21 (opening cover) */
+  --cover-bg: #c5bfb0;
+  /* frame fill, behind the photo */
+  --cover-title: #c5c0c0;
+  /* "The Wedding Of" + couple names */
+  --cover-guest: #ffffff;
+  /* "kepada Yth." + guest name */
+
+  /* Frame 20 (invitation sheet) */
+  --sheet-bg: #d5d2cf;
+  /* frame fill */
+  --hero-ink: #d9d9c9;
+  /* hero "Undangan Pernikahan" + nicknames */
+  --emboss: #c5c0c0;
+  /* embossed Instrument Serif names */
+  --quote-ink: #c0c0a7;
+  --greeting-ink: #a1a18d;
+  --event-date: #7a8363;
+  /* SELASA / 22 APRIL 2021 */
+  --card: #3b4532;
+  /* gift cards, form borders, buttons */
+  --footer-ink: #8a8869;
+
+  /* fonts */
+  --font-cover-couple: "Instrument Serif", serif;
+  --font-cover-eyebrow: "Hotte Brush", "Herr Von Muellerhoff", cursive;
+  --font-cover-guest: "Lisu Bosa", serif;
+  --font-display: "Instrument Serif", serif;
+  --font-hero-eyebrow: "Cormorant", serif;
+  --font-hero-couple: "Cavilenny", serif;
+  --font-countdown: "Ibarra Real Nova", serif;
+  --font-quote: "Roben Elegante Script", cursive;
+  --font-body: "Crimson Text", serif;
+  --font-event-note: "Times New Roman", Times, serif;
+  --font-card: "Visia Pro", system-ui, sans-serif;
+  --font-card-label: "Roboto", system-ui, sans-serif;
+  --font-form: "Bellefair", serif;
+  --font-wish-name: "Abhaya Libre", serif;
+}

@@ -1,0 +1,86 @@
+/* Weights below match what Frames 20 and 21 use — see tokens.css for which layer uses what. */
+@import "@fontsource/instrument-serif/400.css";
+@import "@fontsource/lisu-bosa/400-italic.css";
+/* Stand-in for Hotte Brush (not on Google Fonts) — see --font-cover-eyebrow. */
+@import "@fontsource/herr-von-muellerhoff/400.css";
+@import "@fontsource/cormorant/400.css";
+@import "@fontsource/ibarra-real-nova/400.css";
+@import "@fontsource/ibarra-real-nova/400-italic.css";
+@import "@fontsource/crimson-text/400.css";
+@import "@fontsource/bellefair/400.css";
+@import "@fontsource/abhaya-libre/800.css";
+@import "@fontsource/roboto/400.css";
+@import "./style/tokens.css";
+@import "./style/motion.css";
+
+/*
+ * Drop the licensed file at src/assets/fonts/hotte-brush.otf and uncomment to use the
+ * real face; --font-cover-eyebrow already lists it first.
+ *
+ * @font-face {
+ *   font-family: "Hotte Brush";
+ *   src: url("./assets/fonts/hotte-brush.otf") format("opentype");
+ *   font-display: swap;
+ * }
+ */
+
+@font-face {
+  font-family: "Cavilenny";
+  src: url("./assets/fonts/cavilenny-regular.otf") format("opentype");
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Roben Elegante Script";
+  src: url("./assets/fonts/roben-elegante-script.ttf") format("truetype");
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Visia Pro";
+  src: url("./assets/fonts/visia-pro-semibold.ttf") format("truetype");
+  font-weight: 600;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Visia Pro";
+  src: url("./assets/fonts/visia-pro-heavy.ttf") format("truetype");
+  font-weight: 900;
+  font-display: swap;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html,
+body {
+  width: 100%;
+  min-height: 100%;
+  overflow-x: hidden;
+}
+
+body {
+  background: var(--bg-body);
+  font-family: system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+img {
+  display: block;
+  max-width: 100%;
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}

@@ -1,0 +1,54 @@
+[
+  { "name": "hero-arch", "ids": ["2232:24"] },
+  { "name": "hero-lace", "ids": ["2268:33"] },
+  { "name": "hero-lace-edge", "ids": ["2268:9"] },
+  { "name": "hero-seal", "ids": ["2268:34"] },
+  { "name": "hero-orn-right", "ids": ["2336:86"] },
+  { "name": "hero-orn-left", "ids": ["2336:87"] },
+
+  { "name": "quote-oval", "ids": ["2228:13"] },
+  { "name": "quote-title", "ids": ["2228:38"] },
+  { "name": "quote-peony-right", "ids": ["2240:232"] },
+  { "name": "quote-lace-scrap", "ids": ["2240:236"] },
+  { "name": "quote-peony-left", "ids": ["2240:233"] },
+
+  { "name": "couple-title", "ids": ["2233:51"] },
+  { "name": "couple-and", "ids": ["2233:67"] },
+  { "name": "couple-frame-groom", "ids": ["2232:37"] },
+  { "name": "couple-frame-bride", "ids": ["2233:57"] },
+
+  { "name": "gallery-title", "ids": ["2233:79"] },
+  { "name": "gallery-frame", "ids": ["2233:89"] },
+  { "name": "gallery-photo-1", "ids": ["2233:90"] },
+  { "name": "gallery-photo-2", "ids": ["2233:91"] },
+  { "name": "gallery-photo-3", "ids": ["2233:92"] },
+  { "name": "gallery-caption", "ids": ["2233:94"] },
+
+  { "name": "video-title", "ids": ["2233:96"] },
+
+  { "name": "events-title", "ids": ["2233:101"] },
+  { "name": "events-ornament", "ids": ["2333:27"] },
+  { "name": "events-akad-title", "ids": ["2234:168"] },
+  { "name": "events-akad-frame", "ids": ["2234:158"] },
+  { "name": "events-akad-pin", "ids": ["2236:180"] },
+  { "name": "events-resepsi-title", "ids": ["2333:34"] },
+  { "name": "events-resepsi-frame", "ids": ["2236:181"] },
+  { "name": "events-resepsi-pin", "ids": ["2236:191"] },
+  { "name": "events-swan-right", "ids": ["2249:290"] },
+  { "name": "events-swan-left", "ids": ["2249:291"] },
+
+  { "name": "gift-title", "ids": ["2239:88"] },
+
+  { "name": "wishes-title", "ids": ["2239:192"] },
+  { "name": "wishes-ornament", "ids": ["2333:9"] },
+
+  { "name": "rsvp-title", "ids": ["2239:214"] },
+
+  { "name": "closing-title", "ids": ["2249:278"] },
+  { "name": "closing-mirrors", "ids": ["2246:250", "2246:248", "2246:251", "2246:252"] },
+  { "name": "closing-seal", "ids": ["2249:268"] },
+
+  { "name": "thanks-title", "ids": ["2249:267"] },
+  { "name": "thanks-frame", "ids": ["2247:259", "2247:254"] },
+  { "name": "thanks-credit", "ids": ["2249:273"] }
+]

@@ -1,0 +1,380 @@
+[
+  {
+    "name": "hero-arch",
+    "band": "hero",
+    "x": 100.67,
+    "y": 338.67,
+    "w": 538.67,
+    "h": 768.67,
+    "z": 20
+  },
+  {
+    "name": "hero-lace",
+    "band": "hero",
+    "x": 0.0,
+    "y": 961.33,
+    "w": 747.33,
+    "h": 212.0,
+    "z": 23
+  },
+  {
+    "name": "hero-lace-edge",
+    "band": "hero",
+    "x": 0.0,
+    "y": 1063.33,
+    "w": 747.33,
+    "h": 88.0,
+    "z": 226
+  },
+  {
+    "name": "hero-seal",
+    "band": "hero",
+    "x": 322.0,
+    "y": 296.0,
+    "w": 102.0,
+    "h": 90.0,
+    "z": 227
+  },
+  {
+    "name": "hero-orn-right",
+    "band": "hero",
+    "x": 514.0,
+    "y": 291.33,
+    "w": 170.0,
+    "h": 406.0,
+    "z": 231
+  },
+  {
+    "name": "hero-orn-left",
+    "band": "hero",
+    "x": 55.33,
+    "y": 291.33,
+    "w": 170.0,
+    "h": 406.0,
+    "z": 232
+  },
+  {
+    "name": "quote-oval",
+    "band": "quote",
+    "x": 0.0,
+    "y": 1342.67,
+    "w": 658.0,
+    "h": 791.33,
+    "z": 30
+  },
+  {
+    "name": "quote-title",
+    "band": "quote",
+    "x": 141.33,
+    "y": 1227.33,
+    "w": 464.67,
+    "h": 71.33,
+    "z": 52
+  },
+  {
+    "name": "quote-peony-right",
+    "band": "quote",
+    "x": 539.33,
+    "y": 3600.0,
+    "w": 208.0,
+    "h": 338.0,
+    "z": 198
+  },
+  {
+    "name": "quote-lace-scrap",
+    "band": "quote",
+    "x": 244.0,
+    "y": 3604.0,
+    "w": 419.33,
+    "h": 410.67,
+    "z": 199
+  },
+  {
+    "name": "quote-peony-left",
+    "band": "quote",
+    "x": 0.0,
+    "y": 3483.33,
+    "w": 348.67,
+    "h": 558.0,
+    "z": 202
+  },
+  {
+    "name": "couple-title",
+    "band": "couple",
+    "x": 31.33,
+    "y": 4064.67,
+    "w": 689.33,
+    "h": 101.33,
+    "z": 75
+  },
+  {
+    "name": "couple-and",
+    "band": "couple",
+    "x": 196.0,
+    "y": 5584.0,
+    "w": 348.0,
+    "h": 154.0,
+    "z": 76
+  },
+  {
+    "name": "couple-frame-groom",
+    "band": "couple",
+    "x": 61.33,
+    "y": 4288.0,
+    "w": 636.67,
+    "h": 748.67,
+    "z": 61
+  },
+  {
+    "name": "couple-frame-bride",
+    "band": "couple",
+    "x": 62.67,
+    "y": 5992.0,
+    "w": 636.67,
+    "h": 749.33,
+    "z": 66
+  },
+  {
+    "name": "gallery-title",
+    "band": "gallery",
+    "x": 173.33,
+    "y": 7502.0,
+    "w": 415.33,
+    "h": 104.0,
+    "z": 81
+  },
+  {
+    "name": "gallery-frame",
+    "band": "gallery",
+    "x": 0.0,
+    "y": 7666.67,
+    "w": 694.67,
+    "h": 1044.0,
+    "z": 83
+  },
+  {
+    "name": "gallery-photo-1",
+    "band": "gallery",
+    "x": 62.0,
+    "y": 8584.67,
+    "w": 211.33,
+    "h": 196.67,
+    "z": 87
+  },
+  {
+    "name": "gallery-photo-2",
+    "band": "gallery",
+    "x": 268.67,
+    "y": 8584.67,
+    "w": 210.67,
+    "h": 196.67,
+    "z": 88
+  },
+  {
+    "name": "gallery-photo-3",
+    "band": "gallery",
+    "x": 474.67,
+    "y": 8584.67,
+    "w": 211.33,
+    "h": 196.67,
+    "z": 89
+  },
+  {
+    "name": "gallery-caption",
+    "band": "gallery",
+    "x": 40.67,
+    "y": 8832.67,
+    "w": 655.33,
+    "h": 132.67,
+    "z": 82
+  },
+  {
+    "name": "video-title",
+    "band": "video",
+    "x": 23.33,
+    "y": 9444.0,
+    "w": 353.33,
+    "h": 56.0,
+    "z": 91
+  },
+  {
+    "name": "events-title",
+    "band": "events",
+    "x": 49.33,
+    "y": 9812.67,
+    "w": 644.67,
+    "h": 228.67,
+    "z": 77
+  },
+  {
+    "name": "events-ornament",
+    "band": "events",
+    "x": 204.0,
+    "y": 10153.33,
+    "w": 338.0,
+    "h": 191.33,
+    "z": 230
+  },
+  {
+    "name": "events-akad-title",
+    "band": "events",
+    "x": 144.67,
+    "y": 10447.33,
+    "w": 451.33,
+    "h": 88.67,
+    "z": 78
+  },
+  {
+    "name": "events-akad-frame",
+    "band": "events",
+    "x": 0.0,
+    "y": 10610.0,
+    "w": 724.0,
+    "h": 1076.67,
+    "z": 92
+  },
+  {
+    "name": "events-akad-pin",
+    "band": "events",
+    "x": 362.0,
+    "y": 11140.0,
+    "w": 24.0,
+    "h": 35.33,
+    "z": 114
+  },
+  {
+    "name": "events-resepsi-title",
+    "band": "events",
+    "x": 184.67,
+    "y": 11890.67,
+    "w": 376.0,
+    "h": 107.33,
+    "z": 79
+  },
+  {
+    "name": "events-resepsi-frame",
+    "band": "events",
+    "x": 24.0,
+    "y": 12060.67,
+    "w": 723.33,
+    "h": 1074.67,
+    "z": 95
+  },
+  {
+    "name": "events-resepsi-pin",
+    "band": "events",
+    "x": 362.0,
+    "y": 12590.67,
+    "w": 24.0,
+    "h": 36.67,
+    "z": 116
+  },
+  {
+    "name": "events-swan-right",
+    "band": "events",
+    "x": 408.0,
+    "y": 13298.67,
+    "w": 339.33,
+    "h": 290.0,
+    "z": 223
+  },
+  {
+    "name": "events-swan-left",
+    "band": "events",
+    "x": 23.33,
+    "y": 13393.33,
+    "w": 361.33,
+    "h": 280.0,
+    "z": 224
+  },
+  {
+    "name": "gift-title",
+    "band": "gift",
+    "x": 52.0,
+    "y": 13898.67,
+    "w": 642.0,
+    "h": 96.0,
+    "z": 161
+  },
+  {
+    "name": "wishes-title",
+    "band": "wishes",
+    "x": 28.0,
+    "y": 15922.67,
+    "w": 692.67,
+    "h": 92.67,
+    "z": 166
+  },
+  {
+    "name": "wishes-ornament",
+    "band": "wishes",
+    "x": 282.0,
+    "y": 15641.33,
+    "w": 186.0,
+    "h": 245.33,
+    "z": 228
+  },
+  {
+    "name": "rsvp-title",
+    "band": "rsvp",
+    "x": 36.0,
+    "y": 17376.0,
+    "w": 680.0,
+    "h": 116.0,
+    "z": 185
+  },
+  {
+    "name": "closing-title",
+    "band": "closing",
+    "x": 45.33,
+    "y": 18109.33,
+    "w": 473.33,
+    "h": 409.33,
+    "z": 219
+  },
+  {
+    "name": "closing-mirrors",
+    "band": "closing",
+    "x": 144.0,
+    "y": 18568.67,
+    "w": 545.33,
+    "h": 568.0,
+    "z": 215
+  },
+  {
+    "name": "closing-seal",
+    "band": "closing",
+    "x": 299.33,
+    "y": 19661.33,
+    "w": 138.67,
+    "h": 122.0,
+    "z": 222
+  },
+  {
+    "name": "thanks-title",
+    "band": "thanks",
+    "x": 210.0,
+    "y": 19940.67,
+    "w": 309.33,
+    "h": 210.67,
+    "z": 207
+  },
+  {
+    "name": "thanks-frame",
+    "band": "thanks",
+    "x": 173.33,
+    "y": 20288.0,
+    "w": 400.67,
+    "h": 576.0,
+    "z": 205
+  },
+  {
+    "name": "thanks-credit",
+    "band": "thanks",
+    "x": 246.0,
+    "y": 21672.0,
+    "w": 255.33,
+    "h": 34.67,
+    "z": 210
+  }
+]

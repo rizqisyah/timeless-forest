@@ -1,0 +1,249 @@
+/*
+ * Every animation in the invitation runs through --motion (tokens.css): durations and delays
+ * are multiplied by it, so 1 is the base tempo and 2 plays everything twice as slowly.
+ *
+ * Reveals move with the individual `translate` / `scale` / `rotate` properties, never
+ * `transform`, so they compose with any centring transform the element already has.
+ */
+
+.rv {
+  --dur: 1600ms;
+  --ease: cubic-bezier(0.16, 1, 0.3, 1);
+  transition-property: opacity, translate, scale, rotate, filter, clip-path;
+  transition-duration: calc(var(--dur) * var(--motion));
+  transition-delay: calc(var(--d, 0ms) * var(--motion));
+  transition-timing-function: var(--ease);
+}
+
+.rv:not(.is-in) {
+  opacity: 0;
+}
+
+/* Rises out of a soft focus — the default for text. */
+.rv[data-rv='up']:not(.is-in) {
+  translate: 0 calc(36 * var(--px, 1px));
+  filter: blur(calc(6 * var(--px, 1px)));
+}
+
+.rv[data-rv='down']:not(.is-in) {
+  translate: 0 calc(-48 * var(--px, 1px));
+}
+
+.rv[data-rv='left']:not(.is-in) {
+  translate: calc(-90 * var(--px, 1px)) 0;
+}
+
+.rv[data-rv='right']:not(.is-in) {
+  translate: calc(90 * var(--px, 1px)) 0;
+}
+
+.rv[data-rv='fade'] {
+  --dur: 2200ms;
+}
+
+/* Embossed headings: pressed up out of the paper — a deep blur that sharpens as it grows. */
+.rv[data-rv='emboss'] {
+  --dur: 2400ms;
+}
+
+.rv[data-rv='emboss']:not(.is-in) {
+  scale: 0.92;
+  filter: blur(calc(18 * var(--px, 1px)));
+}
+
+.rv[data-rv='zoom'] {
+  --dur: 2000ms;
+}
+
+.rv[data-rv='zoom']:not(.is-in) {
+  scale: 0.86;
+  filter: blur(calc(10 * var(--px, 1px)));
+}
+
+/* Arrives from slightly too close, as if the camera settles. */
+.rv[data-rv='settle'] {
+  --dur: 2600ms;
+}
+
+.rv[data-rv='settle']:not(.is-in) {
+  scale: 1.12;
+  filter: blur(calc(8 * var(--px, 1px)));
+}
+
+/* Grows up from its base: arches, frames. */
+.rv[data-rv='unveil'] {
+  --dur: 2400ms;
+  --ease: cubic-bezier(0.65, 0, 0.35, 1);
+  clip-path: inset(0 0 0 0);
+}
+
+.rv[data-rv='unveil']:not(.is-in) {
+  opacity: 1;
+  clip-path: inset(100% 0 0 0);
+}
+
+/* Drawn downwards like ink: hanging ornaments. */
+.rv[data-rv='draw'] {
+  --dur: 2600ms;
+  --ease: cubic-bezier(0.45, 0, 0.25, 1);
+  clip-path: inset(0 0 0 0);
+}
+
+.rv[data-rv='draw']:not(.is-in) {
+  opacity: 1;
+  clip-path: inset(0 0 100% 0);
+}
+
+/* Opens from the centre outwards: flourishes. */
+.rv[data-rv='spread'] {
+  --dur: 2200ms;
+  --ease: cubic-bezier(0.65, 0, 0.35, 1);
+  clip-path: inset(0 0 0 0);
+}
+
+.rv[data-rv='spread']:not(.is-in) {
+  opacity: 1;
+  clip-path: inset(0 50% 0 50%);
+}
+
+/* Petals unfurling from the stem. */
+.rv[data-rv='bloom'] {
+  --dur: 2600ms;
+}
+
+.rv[data-rv='bloom']:not(.is-in) {
+  scale: 0.55;
+  rotate: -10deg;
+  filter: blur(calc(6 * var(--px, 1px)));
+}
+
+.rv[data-rv='bloom-r'] {
+  --dur: 2600ms;
+}
+
+.rv[data-rv='bloom-r']:not(.is-in) {
+  scale: 0.55;
+  rotate: 10deg;
+  filter: blur(calc(6 * var(--px, 1px)));
+}
+
+/* Wax seal: dropped from above, presses down and settles with a small bounce. */
+.rv[data-rv='seal'] {
+  --dur: 1500ms;
+  --ease: cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.rv[data-rv='seal']:not(.is-in) {
+  translate: 0 calc(-120 * var(--px, 1px));
+  scale: 1.6;
+  rotate: -18deg;
+}
+
+/* --------------------------------------------------------------------------------------------
+ * Ambient loops, on the sprite's inner image so they never fight the reveal. They wait for
+ * the reveal to finish (the --d + --dur of the parent) before starting.
+ * ------------------------------------------------------------------------------------------ */
+
+.amb {
+  animation-duration: calc(var(--loop) * var(--motion));
+  animation-timing-function: ease-in-out;
+  animation-iteration-count: infinite;
+  animation-play-state: paused;
+}
+
+.is-in > .amb {
+  animation-play-state: running;
+  animation-delay: calc((var(--d, 0ms) + var(--dur)) * var(--motion));
+}
+
+.amb--float {
+  --loop: 8400ms;
+  animation-name: amb-float;
+}
+
+.amb--sway {
+  --loop: 10400ms;
+  animation-name: amb-sway;
+  transform-origin: 50% 100%;
+}
+
+.amb--sway-r {
+  --loop: 11600ms;
+  animation-name: amb-sway;
+  animation-direction: reverse;
+  transform-origin: 50% 100%;
+}
+
+.amb--breathe {
+  --loop: 6400ms;
+  animation-name: amb-breathe;
+}
+
+.amb--drift {
+  --loop: 14000ms;
+  animation-name: amb-drift;
+}
+
+.amb--glide {
+  --loop: 10000ms;
+  animation-name: amb-glide;
+}
+
+.amb--glide-r {
+  --loop: 11200ms;
+  animation-name: amb-glide;
+  animation-direction: reverse;
+}
+
+.amb--bob {
+  --loop: 3200ms;
+  animation-name: amb-bob;
+}
+
+/* Each loop starts and ends at rest, so a paused sprite sits exactly where Figma has it. */
+@keyframes amb-float {
+  25% { transform: translateY(calc(-5 * var(--px, 1px))); }
+  75% { transform: translateY(calc(5 * var(--px, 1px))); }
+}
+
+@keyframes amb-sway {
+  25% { transform: rotate(-1.6deg); }
+  75% { transform: rotate(1.6deg); }
+}
+
+@keyframes amb-breathe {
+  50% { transform: scale(1.045); }
+}
+
+@keyframes amb-drift {
+  25% { transform: translateX(calc(-6 * var(--px, 1px))); }
+  75% { transform: translateX(calc(6 * var(--px, 1px))); }
+}
+
+/* Swans: a slow glide with the slight pitch of a wingbeat. */
+@keyframes amb-glide {
+  25% { transform: translate(calc(-8 * var(--px, 1px)), calc(4 * var(--px, 1px))) rotate(-1.2deg); }
+  75% { transform: translate(calc(8 * var(--px, 1px)), calc(-6 * var(--px, 1px))) rotate(1.2deg); }
+}
+
+@keyframes amb-bob {
+  50% { transform: translateY(calc(-7 * var(--px, 1px))); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .rv {
+    transition: opacity 0.3s linear;
+  }
+
+  .rv:not(.is-in) {
+    translate: none;
+    scale: none;
+    rotate: none;
+    filter: none;
+    clip-path: none;
+  }
+
+  .amb {
+    animation: none;
+  }
+}
