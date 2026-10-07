@@ -15,8 +15,8 @@ const names = computed(() => {
   const [a, ...b] = coupleNames.value.split('&')
   return { first: a.trim(), second: b.join('&').trim() }
 })
-// The dashboard's cover photo, as on the cover itself.
-const photo = computed(() => invite.value.photos.cover || designPhoto)
+// "Left Cover BG (Desktop)", then Background 1, then the cover photo (see useWedding).
+const photo = computed(() => invite.value.photos.left || designPhoto)
 </script>
 
 <template>

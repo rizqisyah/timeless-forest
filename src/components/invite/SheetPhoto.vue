@@ -9,6 +9,7 @@
  */
 import { computed, ref } from 'vue'
 import { maskAsset, photoAsset, type PhotoSlot } from '../../data/photoSlots'
+import type { PhotoFocus } from '../../data/wedding'
 
 const props = defineProps<{
   spec: PhotoSlot
@@ -18,10 +19,28 @@ const props = defineProps<{
   swipe?: boolean
   /** 1 = the next photo comes in from the right, -1 = from the left. */
   dir?: number
+  /** Dashboard zoom / focus point (dashboard photos only; the design's own is framed already). */
+  focus?: PhotoFocus | null
 }>()
 const emit = defineEmits<{ open: [slot: number]; swipe: [step: number] }>()
 
 const fallback = computed(() => photoAsset(props.spec.name))
+
+/* An upload host that 404s must not leave a broken image in the frame: fall back instead. */
+const failed = ref(new Set<string>())
+const shown = computed(() => (props.src && !failed.value.has(props.src) ? props.src : null))
+const imgSrc = computed(() => shown.value || fallback.value)
+
+/* As Bridgerton: object-position picks the focus, and the zoom scales about that point. */
+const imgStyle = computed(() => {
+  const f = shown.value ? props.focus : null
+  if (!f) return undefined
+  return { objectPosition: `${f.x}% ${f.y}%`, transformOrigin: `${f.x}% ${f.y}%`, scale: String(f.scale) }
+})
+
+function onError() {
+  if (props.src) failed.value = new Set(failed.value).add(props.src)
+}
 const isGallery = computed(() => props.spec.gallery !== undefined)
 
 const style = computed(() => {
@@ -102,7 +121,17 @@ function onClick() {
     @click="onClick"
   >
     <Transition name="swap">
-      <img :key="src || fallback" :src="src || fallback" alt="" class="photo__img" decoding="async" loading="lazy" draggable="false" />
+      <img
+        :key="imgSrc"
+        :src="imgSrc"
+        :style="imgStyle"
+        alt=""
+        class="photo__img"
+        decoding="async"
+        loading="lazy"
+        draggable="false"
+        @error="onError"
+      />
     </Transition>
     <span v-if="isGallery" class="sr-only">
       {{ spec.gallery === 0 ? 'Lihat foto' : `Tampilkan foto ${spec.gallery! + 1}` }}

@@ -8,7 +8,7 @@
  * A slot without one stands alone, stacked by Figma's paint order and revealed on its own.
  */
 import zOrder from './z-order.json'
-import type { Invite } from './wedding'
+import type { Invite, PhotoFocus } from './wedding'
 import type { RevealKind } from './spriteMotion'
 
 export interface PhotoSlot {
@@ -32,6 +32,8 @@ export interface PhotoSlot {
   /** Index into the gallery: a click opens the viewer there. */
   gallery?: number
   pick: (p: Invite['photos']) => string | null
+  /** The dashboard's zoom / focus point for this photo, if it has one. */
+  focus?: (p: Invite['photos']) => PhotoFocus | null
 }
 
 const fromGallery = (i: number) => (p: Invite['photos']) =>
@@ -48,11 +50,13 @@ export const photoSlots: PhotoSlot[] = [
     name: 'groom', node: '2228:51', band: 'couple', frame: 'couple-frame-groom',
     x: 74.42, y: 4357.54, w: 600.709, h: 613.825, shape: 'mask',
     pick: (p) => p.groom,
+    focus: (p) => p.groomFocus,
   },
   {
     name: 'bride', node: '2233:58', band: 'couple', frame: 'couple-frame-bride',
     x: 75.42, y: 6061.54, w: 600.709, h: 613.825, shape: 'mask',
     pick: (p) => p.bride,
+    focus: (p) => p.brideFocus,
   },
   {
     name: 'gallery-main', node: '2233:87', band: 'gallery', frame: 'gallery-frame',
@@ -82,7 +86,8 @@ export const photoSlots: PhotoSlot[] = [
   {
     name: 'thanks', node: '2247:259', band: 'thanks', frame: 'thanks-frame',
     x: 194, y: 20337.5, w: 358, h: 511.095, shape: 'mask',
-    pick: (p) => p.couple,
+    // "Foto utama pasangan di Hero & Footer": the same photo as the hero arch.
+    pick: (p) => p.hero,
   },
 ]
 

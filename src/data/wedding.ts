@@ -43,6 +43,13 @@ export interface Wish {
   message: string
 }
 
+/** "Pengaturan Zoom & Posisi Foto Mempelai": crop focus (x, y in %) and zoom about it. */
+export interface PhotoFocus {
+  scale: number
+  x: number
+  y: number
+}
+
 export interface Invite {
   groom: Person
   bride: Person
@@ -64,11 +71,18 @@ export interface Invite {
    * (src/assets/photos). See src/data/photoSlots.ts for which slot takes which.
    */
   photos: {
+    /** Cover Image: the cover page's photo. */
     cover: string | null
+    /** Left Cover BG (Desktop): the photo panel beside the invitation. */
+    left: string | null
+    /** Foto Mempelai Setelah Buka: the hero arch and the thank-you frame ("Hero & Footer"). */
     hero: string | null
+    /** Each partner's photo (Pengantin tab) and its zoom / focus point. */
     groom: string | null
     bride: string | null
-    /** The couple together: the closing mirrors and the thank-you frame. */
+    groomFocus: PhotoFocus | null
+    brideFocus: PhotoFocus | null
+    /** Spouse Image, the prewedding photo: the closing mirrors. */
     couple: string | null
     gallery: string[]
   }
@@ -135,6 +149,16 @@ export const demoInvite: Invite = {
   },
   wishes: [{ ...SAMPLE_WISH, name: '@25ribuaja' }, SAMPLE_WISH, SAMPLE_WISH],
   music: { url: DEFAULT_MUSIC, start: 0, end: 0 },
-  photos: { cover: null, hero: null, groom: null, bride: null, couple: null, gallery: [] },
+  photos: {
+    cover: null,
+    left: null,
+    hero: null,
+    groom: null,
+    bride: null,
+    groomFocus: null,
+    brideFocus: null,
+    couple: null,
+    gallery: [],
+  },
   video: '',
 }

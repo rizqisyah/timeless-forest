@@ -1,7 +1,7 @@
 import { computed, ref } from 'vue'
 import { getHome, resolveSlug, submitRsvp, submitUcapan, type RsvpBody } from '../lib/api'
 import { bankTitle, formatEventDate, formatName, formatWishTime, mapsSearch, parentLine, parseEventStart } from '../lib/format'
-import { DEFAULT_MUSIC, DEMO_GREETING, demoInvite, type Invite, type WeddingEvent, type Wish } from '../data/wedding'
+import { DEFAULT_MUSIC, DEMO_GREETING, demoInvite, type Invite, type PhotoFocus, type WeddingEvent, type Wish } from '../data/wedding'
 
 /*
  * One getHome per page load, shared by every component (module-level state, as in
@@ -116,6 +116,20 @@ function toEvent(a: any, lang: string | null): WeddingEvent {
   }
 }
 
+/**
+ * A dashboard zoom/position setting ({ scale, x, y }, x/y in %) as the focus point the photo
+ * crops around and the zoom about it. null = untouched (centred, no zoom).
+ */
+function focus(t: any): PhotoFocus | null {
+  if (!t || typeof t !== 'object') return null
+  const num = (v: unknown, fallback: number) => {
+    const n = typeof v === 'number' ? v : parseFloat(String(v))
+    return Number.isFinite(n) ? n : fallback
+  }
+  const f = { scale: num(t.scale, 1), x: num(t.x, 50), y: num(t.y, 50) }
+  return f.scale === 1 && f.x === 50 && f.y === 50 ? null : f
+}
+
 function toWish(u: any): Wish {
   return { name: u.guest_name || u.name || '', time: formatWishTime(u.created_at), message: u.message || '' }
 }
@@ -163,11 +177,21 @@ const invite = computed<Invite>(() => {
     .sort((a: any, b: any) => (a?.sort_order ?? 0) - (b?.sort_order ?? 0))
     .map((g: any) => (typeof g === 'string' ? g : g?.image_url || g?.url || g?.src || ''))
     .filter(Boolean)
-  // Same precedence as TemaEnvelopMaroon's invitePhoto / spousePhoto.
-  const hero =
-    str(override.images?.foto_mempelai_setelah_buka) || str(w.image_spouse) ||
-    str(override.backgrounds?.cover) || str(w.image_cover) || gallery[0] || null
-  const couple = str(w.image_spouse) || hero
+  /*
+   * Each photo comes from the dashboard field meant for it (labels as in admin-dashboard),
+   * the wedding's override first, then the theme's master config ("kosongkan untuk
+   * menggunakan gambar dari tema master"):
+   *   Foto Mempelai Setelah Buka — "foto utama pasangan di Hero & Footer"
+   *   Spouse Image (image_spouse) — "foto pasangan prewedding"
+   *   Cover Image (image_cover)   — "background halaman cover"
+   *   Left Cover BG (left_bg)     — "background sisi kiri di desktop"
+   */
+  const master = data.theme?.theme_config ?? {}
+  const pick = (group: 'images' | 'backgrounds', key: string) =>
+    str(override[group]?.[key]) || str(master[group]?.[key])
+  const spouse = str(w.image_spouse)
+  const heroPhoto = pick('images', 'foto_mempelai_setelah_buka') || spouse
+  const coverPhoto = pick('backgrounds', 'cover') || str(w.image_cover)
 
   const opening = override.words?.opening_message
   const countdown =
@@ -194,12 +218,18 @@ const invite = computed<Invite>(() => {
       end: Number(w.music_end) || 0,
     },
     photos: {
-      cover: str(override.backgrounds?.cover) || str(w.image_cover) || hero,
-      hero,
-      // No portrait of one partner: the couple photo; with none at all, the design's.
-      groom: str(rawGroom?.photo_url) || couple,
-      bride: str(rawBride?.photo_url) || couple,
-      couple,
+      cover: coverPhoto,
+      // As TemaEnvelopMaroon / Bridgerton: left_bg, then Background 1, then the cover.
+      left: pick('backgrounds', 'left_bg') || pick('images', 'left_bg') || str(w.image_bg1) || coverPhoto,
+      hero: heroPhoto,
+      // Each partner's own photo from the Pengantin tab, framed with "Pengaturan Zoom &
+      // Posisi Foto Mempelai" (foto_pria_transform / foto_wanita_transform). Without one the
+      // frame keeps the design's photo, as Bridgerton keeps its illustration.
+      groom: str(rawGroom?.photo_url),
+      bride: str(rawBride?.photo_url),
+      groomFocus: focus(override.foto_pria_transform ?? override.foto_mempelai_transform),
+      brideFocus: focus(override.foto_wanita_transform ?? override.spouse_photo_transform),
+      couple: spouse || heroPhoto,
       gallery,
     },
     video: str(w.video_url) || str(override.words?.video_prewed) || str(override.video_prewed) || '',

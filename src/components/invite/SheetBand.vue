@@ -93,6 +93,7 @@ function srcOf(p: PhotoSlot) {
         :origin-y="s.y"
         :swipe="p.gallery !== undefined && viewer.carousel.value"
         :dir="viewer.dir.value"
+        :focus="p.focus?.(invite.photos)"
         @open="viewer.tap"
         @swipe="viewer.step"
       />
@@ -114,6 +115,7 @@ function srcOf(p: PhotoSlot) {
         :origin-y="s.y"
         :swipe="p.gallery !== undefined && viewer.carousel.value"
         :dir="viewer.dir.value"
+        :focus="p.focus?.(invite.photos)"
         @open="viewer.tap"
         @swipe="viewer.step"
       />
@@ -130,6 +132,7 @@ function srcOf(p: PhotoSlot) {
       :origin-y="top"
       :swipe="p.gallery !== undefined && viewer.carousel.value"
       :dir="viewer.dir.value"
+        :focus="p.focus?.(invite.photos)"
       @open="viewer.tap"
       @swipe="viewer.step"
     />
