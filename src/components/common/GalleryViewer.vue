@@ -6,7 +6,7 @@
 import { nextTick, onBeforeUnmount, ref, watch } from 'vue'
 import { useGalleryViewer } from '../../composables/useGalleryViewer'
 
-const { index, photos, close, step } = useGalleryViewer()
+const { index, photos, close, view: step } = useGalleryViewer()
 const closeBtn = ref<HTMLButtonElement | null>(null)
 let returnFocus: Element | null = null
 let startX: number | null = null

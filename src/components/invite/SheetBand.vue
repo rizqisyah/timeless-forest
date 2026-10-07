@@ -12,7 +12,7 @@
 import { computed } from 'vue'
 import sprites from '../../data/sprites.json'
 import { spriteMotion } from '../../data/spriteMotion'
-import { photoSlots, zOf } from '../../data/photoSlots'
+import { photoSlots, zOf, type PhotoSlot } from '../../data/photoSlots'
 import SheetPhoto from './SheetPhoto.vue'
 import { useWedding } from '../../composables/useWedding'
 import { useGalleryViewer } from '../../composables/useGalleryViewer'
@@ -47,6 +47,11 @@ const layers = computed(() =>
 
 /* Photos with no frame to ride in: placed in the band, stacked by Figma's paint order. */
 const solo = computed(() => photoSlots.filter((p) => p.band === props.name && !p.frame))
+
+/* Gallery slots follow the carousel; every other slot shows its own pick. */
+function srcOf(p: PhotoSlot) {
+  return p.gallery !== undefined ? viewer.srcFor(p.gallery) : p.pick(invite.value.photos)
+}
 </script>
 
 <template>
@@ -83,10 +88,13 @@ const solo = computed(() => photoSlots.filter((p) => p.band === props.name && !p
         :key="p.name"
         class="sprite__photo"
         :spec="p"
-        :src="p.pick(invite.photos)"
+        :src="srcOf(p)"
         :origin-x="s.x"
         :origin-y="s.y"
-        @open="viewer.open"
+        :swipe="p.gallery !== undefined && viewer.carousel.value"
+        :dir="viewer.dir.value"
+        @open="viewer.tap"
+        @swipe="viewer.step"
       />
       <img
         :src="s.src"
@@ -101,10 +109,13 @@ const solo = computed(() => photoSlots.filter((p) => p.band === props.name && !p
         :key="p.name"
         class="sprite__photo sprite__photo--over"
         :spec="p"
-        :src="p.pick(invite.photos)"
+        :src="srcOf(p)"
         :origin-x="s.x"
         :origin-y="s.y"
-        @open="viewer.open"
+        :swipe="p.gallery !== undefined && viewer.carousel.value"
+        :dir="viewer.dir.value"
+        @open="viewer.tap"
+        @swipe="viewer.step"
       />
     </div>
     <SheetPhoto
@@ -114,10 +125,13 @@ const solo = computed(() => photoSlots.filter((p) => p.band === props.name && !p
       class="photo-solo"
       :style="{ '--z': zOf(p.node) }"
       :spec="p"
-      :src="p.pick(invite.photos)"
+      :src="srcOf(p)"
       :origin-x="0"
       :origin-y="top"
-      @open="viewer.open"
+      :swipe="p.gallery !== undefined && viewer.carousel.value"
+      :dir="viewer.dir.value"
+      @open="viewer.tap"
+      @swipe="viewer.step"
     />
     <slot />
   </section>

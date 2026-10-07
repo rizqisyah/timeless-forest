@@ -7,12 +7,14 @@ import { useToast } from '../../composables/useToast'
 
 const PAGE = 3
 const { show } = useToast()
-const { invite, guestName, sendWish } = useWedding()
+const { invite, live, guestName, sendWish } = useWedding()
 
 /* getHome's ucapan list, plus anything posted this session on top. */
 const wishes = computed(() => invite.value.wishes)
 const shown = ref(PAGE)
 const visible = computed(() => wishes.value.slice(0, shown.value))
+// The demo keeps the design's button; a real wedding shows it only while more are hidden.
+const showMore = computed(() => !live.value || wishes.value.length > shown.value)
 
 const name = ref('')
 const message = ref('')
@@ -59,7 +61,7 @@ async function send() {
       <button type="submit" class="pill pill--send" :disabled="sending">{{ sending ? 'Sending…' : 'Send' }}</button>
     </form>
 
-    <ul class="wish__list" aria-live="polite">
+    <ul v-if="wishes.length" class="wish__list" aria-live="polite">
       <li v-for="(w, i) in visible" :key="w.name + w.time + i" v-reveal:up="(i % 3) * 150" class="wish">
         <p class="wish__name">{{ w.name }}</p>
         <p class="wish__time">{{ w.time }}</p>
@@ -67,8 +69,22 @@ async function send() {
       </li>
     </ul>
 
-    <!-- Always drawn, as in the design; inert once every wish is listed. -->
-    <button v-reveal:up="200" type="button" class="pill pill--more" :disabled="shown >= wishes.length" @click="shown += PAGE">
+    <!-- No wishes yet: an invitation to write the first, in the list's own space. -->
+    <div v-else v-reveal:up="200" class="wish__empty" aria-live="polite">
+      <p class="wish__empty-title">Belum ada ucapan</p>
+      <p class="wish__empty-text">
+        Jadilah yang pertama mengirimkan doa dan ucapan terbaik untuk kedua mempelai.
+      </p>
+    </div>
+
+    <button
+      v-if="showMore"
+      v-reveal:up="200"
+      type="button"
+      class="pill pill--more"
+      :disabled="shown >= wishes.length"
+      @click="shown += PAGE"
+    >
       Show more
     </button>
   </SheetBand>
@@ -168,6 +184,39 @@ async function send() {
 
 .wish + .wish {
   margin-top: calc(36.2 * var(--px));
+}
+
+/* The list's area plus the Show more button's (16415 -> 17187), which it then replaces. */
+.wish__empty {
+  top: calc((16415.78 - var(--y0)) * var(--px));
+  left: calc(33.34 * var(--px));
+  width: calc(688.21 * var(--px));
+  height: calc(771 * var(--px));
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: calc(18 * var(--px));
+  padding: 0 calc(70 * var(--px));
+  text-align: center;
+}
+
+/* Set like the embossed section titles on this paper. */
+.wish__empty-title {
+  font-family: var(--font-display);
+  font-size: calc(64 * var(--px));
+  line-height: 1;
+  color: var(--emboss);
+  text-shadow:
+    calc(0.8 * var(--px)) calc(1.6 * var(--px)) calc(2 * var(--px)) rgb(0 0 0 / 0.47),
+    calc(-0.8 * var(--px)) 0 calc(3.2 * var(--px)) rgb(255 255 255 / 0.9);
+}
+
+.wish__empty-text {
+  font-family: var(--font-form);
+  font-size: calc(28 * var(--px));
+  line-height: calc(40 * var(--px));
+  color: rgb(0 0 0 / 0.6);
 }
 
 .wish__name {

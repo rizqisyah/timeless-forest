@@ -3,6 +3,7 @@ import SheetBand from './SheetBand.vue'
 import HeroSection from '../sections/HeroSection.vue'
 import QuoteSection from '../sections/QuoteSection.vue'
 import CoupleSection from '../sections/CoupleSection.vue'
+import GallerySection from '../sections/GallerySection.vue'
 import VideoSection from '../sections/VideoSection.vue'
 import EventsSection from '../sections/EventsSection.vue'
 import GiftSection from '../sections/GiftSection.vue'
@@ -12,7 +13,6 @@ import ThanksSection from '../sections/ThanksSection.vue'
 import { useWedding } from '../../composables/useWedding'
 import { hasGallery, hasGift, hasVideo } from '../../data/wedding'
 
-import galleryPlate from '../../assets/sheet/04-gallery.webp'
 import closingPlate from '../../assets/sheet/10-closing.webp'
 
 const { invite, live } = useWedding()
@@ -27,9 +27,7 @@ const { invite, live } = useWedding()
     <HeroSection />
     <QuoteSection />
     <CoupleSection />
-    <SheetBand v-if="hasGallery(invite, live)" name="gallery" :plate="galleryPlate" :top="7335" :bottom="9134" label="Gallery">
-      <h2 class="sr-only">Gallery</h2>
-    </SheetBand>
+    <GallerySection v-if="hasGallery(invite, live)" />
     <VideoSection v-if="hasVideo(invite, live)" />
     <EventsSection />
     <GiftSection v-if="hasGift(invite, live)" />
