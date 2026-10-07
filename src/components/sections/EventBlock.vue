@@ -1,17 +1,33 @@
 <script setup lang="ts">
+import { computed } from 'vue'
 import type { WeddingEvent } from '../../data/wedding'
+import { useFitSize } from '../../composables/useFitSize'
 
 /*
- * The text inside one oval frame. `y` is where the day name sits in Frame 20; everything else
- * keeps the design's offsets from it (akad: 10901, resepsi: 12352) except LINK MAPS, which the
- * design places 11 px differently in the two frames. The location pin is art.
+ * One event: its heading above the oval frame and the text inside it. `y` is where the day
+ * name sits in Frame 20; everything else keeps the design's offsets from it (akad: 10901,
+ * resepsi: 12352) except the heading and LINK MAPS, which the design places a little
+ * differently in the two frames. The location pin is art.
  */
-defineProps<{ event: WeddingEvent; title: string; y: number; mapsY: number }>()
+const props = defineProps<{
+  event: WeddingEvent
+  /** Used when the acara has no name. */
+  fallbackTitle: string
+  y: number
+  /** 2234:168 at 10416 / 101.77 px; 2333:34 at 11869 / 125.767 px. */
+  titleY: number
+  titleSize: number
+  mapsY: number
+}>()
+
+const title = computed(() => props.event.title || props.fallbackTitle)
+// Shrinks a long name ("Pemberkatan Nikah") to one line across the frame's width.
+const titleFs = useFitSize(title, '--font-event-title', props.titleSize, 690, { upper: true })
 </script>
 
 <template>
-  <div class="event" :style="{ '--ey': y, '--my': mapsY - y }">
-    <h3 class="sr-only">{{ title }}</h3>
+  <div class="event" :style="{ '--ey': y, '--ty': titleY - y, '--my': mapsY - y }">
+    <h3 v-reveal:emboss class="event__title" :style="{ '--fs': titleFs }">{{ title }}</h3>
     <p v-if="event.note" v-reveal:up="300" class="event__note">{{ event.note }}</p>
     <p v-reveal:up="450" class="event__day">{{ event.day }}</p>
     <p v-reveal:up="600" class="event__date">{{ event.date }}</p>
@@ -40,10 +56,25 @@ defineProps<{ event: WeddingEvent; title: string; y: number; mapsY: number }>()
   left: 50%;
   transform: translateX(-50%);
   margin: 0;
-  font-family: var(--font-display);
-  color: #fff;
+  font-family: var(--font-event-detail);
+  color: var(--event-ink);
   text-align: center;
   text-shadow: var(--shadow);
+}
+
+/* The embossed heading: Instrument Serif in the paper's own grey, as AKAD NIKAH / RESEPSI. */
+.event__title {
+  top: calc(var(--ty) * var(--px));
+  font-family: var(--font-event-title);
+  font-size: calc(var(--fs) * var(--px));
+  font-weight: 400;
+  line-height: calc(156 * var(--px));
+  color: var(--event-title-ink);
+  text-transform: uppercase;
+  white-space: nowrap;
+  --shadow:
+    calc(1.206 * var(--px)) calc(2.411 * var(--px)) calc(3.014 * var(--px)) rgb(0 0 0 / 0.47),
+    calc(-1.206 * var(--px)) 0 calc(4.823 * var(--px)) rgb(255 255 255 / 0.9);
 }
 
 .event__note {

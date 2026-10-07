@@ -12,6 +12,13 @@
 import { computed } from 'vue'
 import sprites from '../../data/sprites.json'
 import { spriteMotion } from '../../data/spriteMotion'
+import { photoSlots, zOf } from '../../data/photoSlots'
+import SheetPhoto from './SheetPhoto.vue'
+import { useWedding } from '../../composables/useWedding'
+import { useGalleryViewer } from '../../composables/useGalleryViewer'
+
+const { invite } = useWedding()
+const viewer = useGalleryViewer()
 
 const props = defineProps<{
   /** Band key — matches BANDS in scripts/build-plates.py and the nav targets. */
@@ -33,8 +40,13 @@ const layers = computed(() =>
       ...s,
       src: files[`../../assets/sprites/${s.name}.webp`],
       motion: spriteMotion[s.name] ?? { in: 'fade' as const },
+      under: photoSlots.filter((p) => p.frame === s.name && !p.above),
+      over: photoSlots.filter((p) => p.frame === s.name && p.above),
     })),
 )
+
+/* Photos with no frame to ride in: placed in the band, stacked by Figma's paint order. */
+const solo = computed(() => photoSlots.filter((p) => p.band === props.name && !p.frame))
 </script>
 
 <template>
@@ -66,6 +78,16 @@ const layers = computed(() =>
         '--z': s.z,
       }"
     >
+      <SheetPhoto
+        v-for="p in s.under"
+        :key="p.name"
+        class="sprite__photo"
+        :spec="p"
+        :src="p.pick(invite.photos)"
+        :origin-x="s.x"
+        :origin-y="s.y"
+        @open="viewer.open"
+      />
       <img
         :src="s.src"
         alt=""
@@ -74,7 +96,29 @@ const layers = computed(() =>
         :loading="eager ? 'eager' : 'lazy'"
         decoding="async"
       />
+      <SheetPhoto
+        v-for="p in s.over"
+        :key="p.name"
+        class="sprite__photo sprite__photo--over"
+        :spec="p"
+        :src="p.pick(invite.photos)"
+        :origin-x="s.x"
+        :origin-y="s.y"
+        @open="viewer.open"
+      />
     </div>
+    <SheetPhoto
+      v-for="p in solo"
+      :key="p.name"
+      v-reveal:[p.reveal?.in]="p.reveal?.delay"
+      class="photo-solo"
+      :style="{ '--z': zOf(p.node) }"
+      :spec="p"
+      :src="p.pick(invite.photos)"
+      :origin-x="0"
+      :origin-y="top"
+      @open="viewer.open"
+    />
     <slot />
   </section>
 </template>
@@ -96,12 +140,27 @@ const layers = computed(() =>
   user-select: none;
 }
 
+/* A frame and the photo it holds paint in their own order, whatever the reveal is doing. */
+.sprite {
+  isolation: isolate;
+}
+
 .sprite__img {
+  position: relative;
+  z-index: 1;
   width: 100%;
   height: 100%;
   max-width: none;
   pointer-events: none;
   user-select: none;
+}
+
+.sprite__photo {
+  z-index: 0;
+}
+
+.sprite__photo--over {
+  z-index: 2;
 }
 </style>
 
@@ -116,8 +175,12 @@ const layers = computed(() =>
   margin: 0;
 }
 
-.sheet-band > .sprite {
+.sheet-band > .sprite,
+.sheet-band > .photo-solo {
   z-index: var(--z);
+}
+
+.sheet-band > .sprite {
   pointer-events: none;
 }
 </style>

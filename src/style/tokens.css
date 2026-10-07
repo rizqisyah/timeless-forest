@@ -35,7 +35,7 @@
 
   /* fonts */
   --font-cover-couple: "Instrument Serif", serif;
-  --font-cover-eyebrow: "Hotte Brush", "Herr Von Muellerhoff", cursive;
+  --font-cover-eyebrow: "Hotte Brush Italic", cursive;
   --font-cover-guest: "Lisu Bosa", serif;
   --font-display: "Instrument Serif", serif;
   --font-hero-eyebrow: "Cormorant", serif;
@@ -48,4 +48,14 @@
   --font-card-label: "Roboto", system-ui, sans-serif;
   --font-form: "Bellefair", serif;
   --font-wish-name: "Abhaya Libre", serif;
+
+  /*
+   * Hooks for the dashboard's Theme Override (useWedding.ts applyTheme). The defaults are the
+   * design's; an override sets the variable on <html>.
+   */
+  --font-couple-name: var(--font-display);
+  --font-event-title: var(--font-display);
+  --font-event-detail: var(--font-display);
+  --event-title-ink: var(--emboss);
+  --event-ink: #ffffff;
 }

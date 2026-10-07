@@ -1,44 +1,48 @@
 <script setup lang="ts">
-import { computed, ref } from 'vue'
+import { computed, ref, watch } from 'vue'
 import SheetBand from '../invite/SheetBand.vue'
 import plate from '../../assets/sheet/08-wishes.webp'
-import { wedding, type Wish } from '../../data/wedding'
+import { useWedding } from '../../composables/useWedding'
 import { useToast } from '../../composables/useToast'
 
 const PAGE = 3
 const { show } = useToast()
+const { invite, guestName, sendWish } = useWedding()
 
-/* No backend yet: new wishes live in this page session only. */
-const wishes = ref<Wish[]>([...wedding.wishes])
+/* getHome's ucapan list, plus anything posted this session on top. */
+const wishes = computed(() => invite.value.wishes)
 const shown = ref(PAGE)
 const visible = computed(() => wishes.value.slice(0, shown.value))
 
 const name = ref('')
 const message = ref('')
+const sending = ref(false)
 
-const stamp = new Intl.DateTimeFormat('en-GB', {
-  day: '2-digit',
-  month: 'long',
-  year: 'numeric',
-  hour: '2-digit',
-  minute: '2-digit',
-  hour12: false,
-})
+// A personal link (?to=) already knows who is writing.
+watch(
+  guestName,
+  (g) => {
+    if (g && g !== 'Nama Tamu' && !name.value) name.value = g
+  },
+  { immediate: true },
+)
 
-function send() {
+async function send() {
   if (!name.value.trim() || !message.value.trim()) {
     show('Isi nama dan ucapan dulu')
     return
   }
-  wishes.value.unshift({
-    name: name.value.trim(),
-    time: stamp.format(new Date()).replace(' at ', ', '),
-    message: message.value.trim(),
-  })
-  shown.value = Math.max(shown.value, PAGE)
-  name.value = ''
-  message.value = ''
-  show('Terima kasih atas ucapannya')
+  sending.value = true
+  try {
+    await sendWish({ guest_name: name.value.trim(), message: message.value.trim() })
+    shown.value = Math.max(shown.value, PAGE)
+    message.value = ''
+    show('Terima kasih atas ucapannya')
+  } catch (err: any) {
+    show(err?.message || 'Gagal mengirim ucapan. Coba lagi.')
+  } finally {
+    sending.value = false
+  }
 }
 </script>
 
@@ -52,7 +56,7 @@ function send() {
       <input id="wish-name" v-model="name" class="field field--name" placeholder="Name" autocomplete="name" />
       <label class="sr-only" for="wish-message">Ucapan</label>
       <textarea id="wish-message" v-model="message" class="field field--message" placeholder="Give your wish"></textarea>
-      <button type="submit" class="pill pill--send">Send</button>
+      <button type="submit" class="pill pill--send" :disabled="sending">{{ sending ? 'Sending…' : 'Send' }}</button>
     </form>
 
     <ul class="wish__list" aria-live="polite">

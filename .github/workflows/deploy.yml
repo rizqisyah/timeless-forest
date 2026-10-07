@@ -1,0 +1,56 @@
+name: Deploy Frontend (TemaTimelessForest) to VPS
+
+# Same pipeline as the other qinvi themes: build, then rsync dist/ into the theme's folder,
+# which nginx serves at qinvi.id/TemaTimelessForest/<slug>. The folder name must equal the
+# theme `code` in qinvi-be (src/config/themes/tema-timeless-forest.config.ts), because
+# admin-dashboard builds invitation links as {FRONTEND_URL}/{theme_code}/{slug}.
+#
+# Repository secrets (Settings -> Secrets and variables -> Actions), the same as the other themes:
+#   VPS_SSH_KEY  private key allowed to log in to the VPS
+#   VPS_HOST     VPS host name or IP
+#   VPS_USER     SSH user that owns /var/www/qinvi/themes
+
+on:
+  push:
+    branches:
+      - main
+      - master
+  workflow_dispatch:
+
+concurrency:
+  group: deploy-tema-timeless-forest
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install Dependencies
+        run: npm ci
+
+      - name: Build Static Files
+        run: npm run build
+        env:
+          VITE_API_BASE_URL: https://api.qinvi.id/api
+          VITE_DEFAULT_SLUG: tema-timeless-forest
+
+      - name: Setup SSH Key
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.VPS_SSH_KEY }}" > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+          ssh-keyscan -H ${{ secrets.VPS_HOST }} >> ~/.ssh/known_hosts
+
+      - name: Deploy Static Dist to VPS via Rsync
+        run: |
+          rsync -avz --delete dist/ ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }}:/var/www/qinvi/themes/TemaTimelessForest/

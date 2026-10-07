@@ -1,16 +1,16 @@
 <script setup lang="ts">
 import { nextTick, ref } from 'vue'
-import { useGuestName } from './composables/useGuestName'
-import { wedding } from './data/wedding'
+import { useWedding } from './composables/useWedding'
 import { startReveals } from './motion/reveal'
 import CoverSection from './components/cover/CoverSection.vue'
 import InviteSheet from './components/invite/InviteSheet.vue'
 import DesktopAside from './components/common/DesktopAside.vue'
 import MusicButton from './components/common/MusicButton.vue'
 import AppToast from './components/common/AppToast.vue'
+import GalleryViewer from './components/common/GalleryViewer.vue'
 
-const guestName = useGuestName()
-const coupleNames = `${wedding.groom.nickname} & ${wedding.bride.nickname}`
+// Starts the getHome request; the cover shows while it is in flight.
+const { guestName, coupleNames, invite } = useWedding()
 const isOpen = ref(false)
 const column = ref<HTMLElement | null>(null)
 
@@ -33,7 +33,12 @@ async function openInvitation() {
     <div ref="column" class="desktop-right">
       <Transition name="splash">
         <div v-if="!isOpen" class="cover-layer">
-          <CoverSection :couple-names="coupleNames" :guest-name="guestName" @open="openInvitation" />
+          <CoverSection
+            :couple-names="coupleNames"
+            :guest-name="guestName"
+            :photo="invite.photos.cover"
+            @open="openInvitation"
+          />
         </div>
       </Transition>
 
@@ -43,6 +48,7 @@ async function openInvitation() {
     <MusicButton v-if="isOpen" />
 
     <AppToast />
+    <GalleryViewer />
   </main>
 </template>
 

@@ -1,20 +1,64 @@
 <script setup lang="ts">
-import { reactive } from 'vue'
+import { computed, onMounted, reactive, ref, watch } from 'vue'
 import SheetBand from '../invite/SheetBand.vue'
 import plate from '../../assets/sheet/09-rsvp.webp'
 import { useToast } from '../../composables/useToast'
+import { useWedding } from '../../composables/useWedding'
 
 const { show } = useToast()
-const form = reactive({ name: '', phone: '', attending: '', guests: '' })
+const { slug, guestCode, guest, guestName, sendRsvp } = useWedding()
+const form = reactive({ name: '', phone: '', attending: '' as '' | 'hadir' | 'tidak_hadir', guests: '' })
+const sending = ref(false)
+const sent = ref(false)
 
-/* No backend yet — validates and confirms, nothing is sent. */
-function send() {
+/* A personal link's guest may bring up to `pax` people (dashboard); an open link, five. */
+const maxGuests = computed(() => Math.max(1, Number(guest.value?.pax) || 5))
+
+/* Per invitation and per guest link, as in TemaEnvelopMaroon. */
+const receiptKey = `rsvp_${slug}_${guestCode || 'general'}`
+
+onMounted(() => {
+  try {
+    sent.value = localStorage.getItem(receiptKey) === 'true'
+  } catch {
+    // Private browsing throws here; the form just stays open.
+  }
+})
+
+watch(
+  [guest, guestName],
+  ([g, name]) => {
+    if (g?.has_rsvp) sent.value = true
+    if (!form.name && name && name !== 'Nama Tamu') form.name = name
+  },
+  { immediate: true },
+)
+
+async function send() {
   if (!form.name.trim() || !form.attending) {
     show('Isi nama dan konfirmasi kehadiran')
     return
   }
-  show(form.attending === 'yes' ? 'Terima kasih, sampai jumpa!' : 'Terima kasih atas konfirmasinya')
-  Object.assign(form, { name: '', phone: '', attending: '', guests: '' })
+  sending.value = true
+  try {
+    await sendRsvp({
+      guest_name: form.name.trim(),
+      phone: form.phone.trim(),
+      attendance_status: form.attending,
+      guest_count: form.attending === 'hadir' ? Number(form.guests) || 1 : 0,
+    })
+    try {
+      localStorage.setItem(receiptKey, 'true')
+    } catch {
+      // Losing the receipt only means the form reopens on reload.
+    }
+    sent.value = true
+    show(form.attending === 'hadir' ? 'Terima kasih, sampai jumpa!' : 'Terima kasih atas konfirmasinya')
+  } catch (err: any) {
+    show(err?.message || 'Gagal mengirim konfirmasi. Coba lagi.')
+  } finally {
+    sending.value = false
+  }
 }
 </script>
 
@@ -33,17 +77,25 @@ function send() {
       <label class="sr-only" for="rsvp-attending">Kehadiran</label>
       <select id="rsvp-attending" v-model="form.attending" class="field" :class="{ 'is-empty': !form.attending }">
         <option value="" disabled>Will you be joining us?</option>
-        <option value="yes">Ya, saya akan hadir</option>
-        <option value="no">Maaf, tidak bisa hadir</option>
+        <option value="hadir">Ya, saya akan hadir</option>
+        <option value="tidak_hadir">Maaf, tidak bisa hadir</option>
       </select>
 
       <label class="sr-only" for="rsvp-guests">Jumlah tamu</label>
-      <select id="rsvp-guests" v-model="form.guests" class="field" :class="{ 'is-empty': !form.guests }">
+      <select
+        id="rsvp-guests"
+        v-model="form.guests"
+        class="field"
+        :class="{ 'is-empty': !form.guests }"
+        :disabled="form.attending === 'tidak_hadir'"
+      >
         <option value="" disabled>Number of Guests:</option>
-        <option v-for="n in 5" :key="n" :value="String(n)">{{ n }} orang</option>
+        <option v-for="n in maxGuests" :key="n" :value="String(n)">{{ n }} orang</option>
       </select>
 
-      <button type="submit" class="rsvp__send">Send</button>
+      <button type="submit" class="rsvp__send" :disabled="sending || sent">
+        {{ sent ? 'Terima kasih, konfirmasi diterima' : sending ? 'Sending…' : 'Send' }}
+      </button>
     </form>
   </SheetBand>
 </template>
@@ -101,7 +153,11 @@ function send() {
   transition: transform 200ms ease;
 }
 
-.rsvp__send:active {
+.rsvp__send:disabled {
+  cursor: default;
+}
+
+.rsvp__send:active:not(:disabled) {
   transform: scale(0.98);
 }
 

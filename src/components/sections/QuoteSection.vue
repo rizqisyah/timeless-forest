@@ -1,10 +1,11 @@
 <script setup lang="ts">
 import SheetBand from '../invite/SheetBand.vue'
 import plate from '../../assets/sheet/02-quote.webp'
-import { wedding } from '../../data/wedding'
+import { useWedding } from '../../composables/useWedding'
 import { useCountdown } from '../../composables/useCountdown'
 
-const left = useCountdown(wedding.countdownTo)
+const { invite } = useWedding()
+const left = useCountdown(() => invite.value.countdownTo)
 
 /* Group 30 (2228:14): a 2 x 2 grid of 171 px cells, laid out as Figma's flex columns. */
 const cells = [
@@ -34,9 +35,9 @@ const cells = [
       <p class="cell__label">{{ c.label }}</p>
     </div>
 
-    <p v-reveal:up class="quote__source">{{ wedding.quote.source }}</p>
-    <p v-reveal:up="250" class="quote__text">{{ wedding.quote.text }}</p>
-    <p v-reveal:up class="quote__greeting">{{ wedding.greeting }}</p>
+    <p v-reveal:up class="quote__source">{{ invite.quote.source }}</p>
+    <p v-reveal:up="250" class="quote__text">{{ invite.quote.text }}</p>
+    <p v-reveal:up class="quote__greeting">{{ invite.greeting }}</p>
   </SheetBand>
 </template>
 

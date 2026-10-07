@@ -2,10 +2,11 @@
 import SheetBand from '../invite/SheetBand.vue'
 import plate from '../../assets/sheet/07-gift.webp'
 import copyIcon from '../../assets/sheet/copy.svg'
-import { wedding } from '../../data/wedding'
+import { useWedding } from '../../composables/useWedding'
 import { useToast } from '../../composables/useToast'
 
 const { show } = useToast()
+const { invite } = useWedding()
 
 async function copy(text: string, what: string) {
   try {
@@ -24,8 +25,8 @@ async function copy(text: string, what: string) {
     <!-- Containers 2239:53 / 2239:37 / 2239:72: a column at y 14033, 68 px apart. -->
     <div class="gift__list">
       <article
-        v-for="(acc, i) in wedding.accounts"
-        :key="acc.number"
+        v-for="(acc, i) in invite.accounts"
+        :key="`${acc.bank}-${acc.number}-${i}`"
         v-reveal:up="i * 200"
         class="card card--bank"
       >
@@ -40,13 +41,14 @@ async function copy(text: string, what: string) {
         </button>
       </article>
 
-      <article v-reveal:up="wedding.accounts.length * 200" class="card card--address">
+      <!-- The rekening row whose bank is "kado" (qinvi convention), if the wedding has one. -->
+      <article v-if="invite.giftAddress" v-reveal:up="invite.accounts.length * 200" class="card card--address">
         <h3 class="card__title card__title--center">PENGIRIMAN KADO</h3>
         <p class="card__label card__label--address">Alamat</p>
-        <p class="card__address">{{ wedding.giftAddress.address }}</p>
+        <p class="card__address">{{ invite.giftAddress.address }}</p>
         <p class="card__label card__label--recipient">Penerima</p>
-        <p class="card__value card__value--recipient">{{ wedding.giftAddress.recipient }}</p>
-        <button type="button" class="card__copy card__copy--address" @click="copy(wedding.giftAddress.address, 'Alamat')">
+        <p class="card__value card__value--recipient">{{ invite.giftAddress.recipient }}</p>
+        <button type="button" class="card__copy card__copy--address" @click="copy(invite.giftAddress!.address, 'Alamat')">
           <img :src="copyIcon" alt="" width="54" height="54" />
           <span class="sr-only">Salin alamat pengiriman kado</span>
         </button>
@@ -97,6 +99,14 @@ async function copy(text: string, what: string) {
 
 .card__title {
   top: calc(40.5 * var(--px));
+}
+
+/* Long bank or holder names stop short of the copy button (x 592) with an ellipsis. */
+.card--bank .card__title,
+.card__value {
+  max-width: calc(555 * var(--px));
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .card__title--center {

@@ -1,8 +1,6 @@
 /* Weights below match what Frames 20 and 21 use — see tokens.css for which layer uses what. */
 @import "@fontsource/instrument-serif/400.css";
 @import "@fontsource/lisu-bosa/400-italic.css";
-/* Stand-in for Hotte Brush (not on Google Fonts) — see --font-cover-eyebrow. */
-@import "@fontsource/herr-von-muellerhoff/400.css";
 @import "@fontsource/cormorant/400.css";
 @import "@fontsource/ibarra-real-nova/400.css";
 @import "@fontsource/ibarra-real-nova/400-italic.css";
@@ -14,15 +12,17 @@
 @import "./style/motion.css";
 
 /*
- * Drop the licensed file at src/assets/fonts/hotte-brush.otf and uncomment to use the
- * real face; --font-cover-eyebrow already lists it first.
- *
- * @font-face {
- *   font-family: "Hotte Brush";
- *   src: url("./assets/fonts/hotte-brush.otf") format("opentype");
- *   font-display: swap;
- * }
+ * "The Wedding Of" (cover + desktop panel) — Figma's "Hotte Brush: Italic", which is its own
+ * family in the font files (HotteBrushItalic-*.ttf). Subset to just those letters:
+ *   pyftsubset HotteBrushItalic-ZVwWK.ttf --text="The Wedding Of" --layout-features='*'
+ *     --flavor=woff2 --output-file=hotte-brush-italic.woff2
+ * Re-run with the new text if that wording ever changes, or the missing letters fall back.
  */
+@font-face {
+  font-family: "Hotte Brush Italic";
+  src: url("./assets/fonts/hotte-brush-italic.woff2") format("woff2");
+  font-display: block;
+}
 
 @font-face {
   font-family: "Cavilenny";

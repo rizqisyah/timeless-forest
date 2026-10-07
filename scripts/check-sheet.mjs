@@ -12,6 +12,8 @@ const { chromium } = await import(
 const out = process.argv[2]
 const browser = await chromium.launch()
 const page = await browser.newPage({ viewport: { width: 747, height: 1128 }, reducedMotion: 'reduce' })
+// Compare the design's own content: no wedding from whatever API .env points at.
+await page.route('**/getHome/**', (r) => r.fulfill({ status: 404, json: { success: false } }))
 await page.goto('http://localhost:5185/TemaTimelessForest/')
 await page.click('.cover__monogram')
 await page.waitForTimeout(600)

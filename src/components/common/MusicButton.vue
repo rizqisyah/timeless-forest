@@ -9,12 +9,13 @@
  */
 import { onBeforeUnmount, onMounted, ref } from 'vue'
 import vinyl from '../../assets/music/vinyl.webp'
-import { wedding } from '../../data/wedding'
+import { useWedding } from '../../composables/useWedding'
 
 const audioEl = ref<HTMLAudioElement | null>(null)
 const playing = ref(false)
 /** True only while the page itself paused the song; a guest's own pause is left alone. */
 let pausedByLeaving = false
+const { invite } = useWedding()
 
 /* ---- intro skip + loop (native `loop` would replay the intro), as in TemaEnvelopMaroon ---- */
 
@@ -28,7 +29,7 @@ function seekTo(audio: HTMLAudioElement, t: number) {
 }
 
 function startOf(audio: HTMLAudioElement) {
-  const start = wedding.music.start
+  const start = invite.value.music.start
   return start > 0 && start < audio.duration ? start : 0
 }
 
@@ -41,7 +42,7 @@ function onLoaded(e: Event) {
 function onTimeUpdate(e: Event) {
   const audio = e.target as HTMLAudioElement
   const start = startOf(audio)
-  const end = wedding.music.end
+  const end = invite.value.music.end
   if (audio.currentTime < start - 0.5 || (end > start && audio.currentTime >= end)) seekTo(audio, start)
 }
 
@@ -107,7 +108,7 @@ onBeforeUnmount(() => {
     <img :src="vinyl" alt="" class="vinyl-disc" :class="{ 'is-spinning': playing }" width="60" height="60" />
     <audio
       ref="audioEl"
-      :src="wedding.music.url"
+      :src="invite.music.url"
       preload="auto"
       @loadedmetadata="onLoaded"
       @timeupdate="onTimeUpdate"

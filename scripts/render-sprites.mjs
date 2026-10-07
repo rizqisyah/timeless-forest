@@ -37,13 +37,23 @@ for (const s of sprites) {
       const el = document.querySelector(`[data-node-id="${id}"]`)
       if (!el) throw new Error(`no node ${id}`)
       el.classList.add('solo-on')
-      for (const n of [el, ...el.querySelectorAll('*')]) {
-        const r = n.getBoundingClientRect()
-        if (!r.width || !r.height) continue
+      const grow = (r) => {
+        if (!r.width || !r.height) return
         x0 = Math.min(x0, r.left + scrollX)
         y0 = Math.min(y0, r.top + scrollY)
         x1 = Math.max(x1, r.right + scrollX)
         y1 = Math.max(y1, r.bottom + scrollY)
+      }
+      for (const n of [el, ...el.querySelectorAll('*')]) grow(n.getBoundingClientRect())
+      // Display type often sits in a box shorter than its letters (Figma: "And" is 238px
+      // type in a 120px box). The glyphs' own inline boxes reach past it; without them
+      // the capture slices off ascenders and descenders.
+      const walker = document.createTreeWalker(el, NodeFilter.SHOW_TEXT)
+      for (let t = walker.nextNode(); t; t = walker.nextNode()) {
+        if (!t.textContent.trim()) continue
+        const range = document.createRange()
+        range.selectNodeContents(t)
+        for (const r of range.getClientRects()) grow(r)
       }
     }
     return { x0, y0, x1, y1 }
@@ -67,4 +77,6 @@ for (const s of sprites) {
   console.log(s.name, boxes[s.name])
 }
 writeFileSync(`${dir}/boxes.json`, JSON.stringify(boxes, null, 2))
+// The live photo slots stack by the same paint order (src/data/photoSlots.ts reads this).
+writeFileSync('src/data/z-order.json', JSON.stringify(order) + '\n')
 await close()

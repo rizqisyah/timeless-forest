@@ -72,6 +72,9 @@ print(f"total {total // 1024} KB")
 # whose coordinates the app positions them in.
 sprite_dir = root / "src/assets/sprites"
 sprite_dir.mkdir(parents=True, exist_ok=True)
+# The app globs this folder, so a sprite dropped from sprites.json must not linger here.
+for old in sprite_dir.glob("*.webp"):
+    old.unlink()
 boxes = json.loads((tmp / "sprites/boxes.json").read_text())
 manifest = []
 for name, b in boxes.items():
@@ -97,3 +100,42 @@ for name, b in boxes.items():
     total += (sprite_dir / f"{name}.webp").stat().st_size
 (root / "src/data/sprites.json").write_text(json.dumps(manifest, indent=2) + chr(10))
 print(f"{len(manifest)} sprites, total with plates {total // 1024} KB")
+
+# Photo slots (src/data/photoSlots.ts): the design's own photo for each, shown until the
+# dashboard supplies one, and for shaped slots a mask cut from the layer's alpha so an
+# uploaded photo takes exactly the frame's opening. Sizes are the slot box at 1.5x.
+PHOTOS = {
+    # name: (Figma asset, slot w, slot h, keep alpha + export mask)
+    "hero": ("b5d04", 534, 764, False),
+    "groom": ("e0b25", 600.709, 613.825, True),
+    "bride": ("db55f", 600.709, 613.825, True),
+    "gallery-main": ("9d72e", 384.922, 621.35, True),
+    "gallery-1": ("9b6e5", 206.667, 191.823, False),
+    "gallery-2": ("37045", 206.667, 191.823, False),
+    "gallery-3": ("aff46", 206.667, 191.823, False),
+    "mirror-left": ("e5254", 151.827, 222, False),
+    "mirror-right": ("90819", 156.284, 218.634, False),
+    "thanks": ("b12af", 358, 511.095, True),
+}
+photo_dir = root / "src/assets/photos"
+photo_dir.mkdir(parents=True, exist_ok=True)
+for name, (asset, w, h, shaped) in PHOTOS.items():
+    src = Image.open(tmp / f"assets/{asset}.png")
+    size = (round(w * SCALE), round(h * SCALE))
+    if src.mode == "RGBA" or shaped:
+        # Already cut to its shape (vector / ellipse fills): scale to the box as drawn.
+        im = src.convert("RGBA").resize(size, Image.LANCZOS)
+        im.save(photo_dir / f"{name}.webp", "WEBP", quality=82, alpha_quality=90, method=6)
+    else:
+        # A plain image under object-fit: cover — crop to the box's aspect first.
+        im = src.convert("RGB")
+        k = max(size[0] / im.width, size[1] / im.height)
+        im = im.resize((round(im.width * k), round(im.height * k)), Image.LANCZOS)
+        l, t = (im.width - size[0]) // 2, (im.height - size[1]) // 2
+        im.crop((l, t, l + size[0], t + size[1])).save(photo_dir / f"{name}.webp", "WEBP", quality=82, method=6)
+    if shaped:
+        alpha = src.convert("RGBA").split()[3].resize(size, Image.LANCZOS)
+        mask = Image.new("RGBA", size, (0, 0, 0, 0))
+        mask.putalpha(alpha)
+        mask.save(photo_dir / f"mask-{name}.png", optimize=True)
+print(f"{len(PHOTOS)} photo slots -> {photo_dir.relative_to(root)}")

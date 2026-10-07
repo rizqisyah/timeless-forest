@@ -1,7 +1,18 @@
 <script setup lang="ts">
 import SheetBand from '../invite/SheetBand.vue'
 import plate from '../../assets/sheet/03-couple.webp'
-import { wedding } from '../../data/wedding'
+import { useWedding } from '../../composables/useWedding'
+import { useFitSize } from '../../composables/useFitSize'
+
+const { invite } = useWedding()
+
+/*
+ * The design sets each full name on (at most) two lines under its frame. A longer name
+ * shrinks to keep to two; the parents' line follows it in the flow, so it is pushed down
+ * rather than overlapped if a name still runs long.
+ */
+const groomFs = useFitSize(() => invite.value.groom.fullName, '--font-couple-name', 76.698, 685, { lines: 2, min: 44 })
+const brideFs = useFitSize(() => invite.value.bride.fullName, '--font-couple-name', 76.698, 658.723, { lines: 2, min: 44 })
 </script>
 
 <template>
@@ -9,21 +20,26 @@ import { wedding } from '../../data/wedding'
     <h2 class="sr-only">Bride &amp; Groom</h2>
 
     <!-- Group 71 (2233:48) -->
-    <h3 v-reveal:up class="couple__name couple__name--groom">{{ wedding.groom.fullName }}</h3>
-    <p v-reveal:up="250" class="couple__parents couple__parents--groom">{{ wedding.groom.parents }}</p>
+    <div class="person person--groom">
+      <h3 v-reveal:up class="person__name" :style="{ '--fs': groomFs }">{{ invite.groom.fullName }}</h3>
+      <p v-reveal:up="250" class="person__parents">{{ invite.groom.parents }}</p>
+    </div>
 
     <!-- Group 95 (2233:60) -->
-    <h3 v-reveal:up class="couple__name couple__name--bride">{{ wedding.bride.fullName }}</h3>
-    <p v-reveal:up="250" class="couple__parents couple__parents--bride">{{ wedding.bride.parents }}</p>
+    <div class="person person--bride">
+      <h3 v-reveal:up class="person__name" :style="{ '--fs': brideFs }">{{ invite.bride.fullName }}</h3>
+      <p v-reveal:up="250" class="person__parents">{{ invite.bride.parents }}</p>
+    </div>
   </SheetBand>
 </template>
 
 <style scoped>
-.couple__name {
-  font-family: var(--font-display);
-  font-size: calc(76.698 * var(--px));
+.person__name {
+  font-family: var(--font-couple-name);
+  font-size: calc(var(--fs) * var(--px));
   font-weight: 400;
-  line-height: calc(101.931 * var(--px));
+  /* 101.931 / 76.698: the design's leading, kept as the size shrinks. */
+  line-height: 1.329;
   color: var(--emboss);
   text-align: center;
   text-shadow:
@@ -32,36 +48,37 @@ import { wedding } from '../../data/wedding'
     0 0 calc(4 * var(--px)) rgb(255 255 255 / 0.33);
 }
 
-.couple__parents {
+.person__parents {
+  margin-inline: auto;
   font-family: var(--font-body);
   font-size: calc(30.638 * var(--px));
   line-height: calc(38.298 * var(--px));
   text-align: center;
 }
 
-.couple__name--groom {
+/* Name at (31, 5050) 685 wide; parents 508 wide at y 5269 — 15.14 below a two-line name. */
+.person--groom {
   top: calc((5050 - var(--y0)) * var(--px));
   left: calc(31 * var(--px));
   width: calc(685 * var(--px));
 }
 
-.couple__parents--groom {
-  top: calc((5269 - var(--y0)) * var(--px));
-  left: calc(120 * var(--px));
+.person--groom .person__parents {
   width: calc(508 * var(--px));
-  color: #444;
+  margin-top: calc(15.138 * var(--px));
+  color: var(--parents-ink, #444);
 }
 
-.couple__name--bride {
+/* Name at (47, 6773) 658.72 wide; parents same box at y 7013 — 36.14 below. */
+.person--bride {
   top: calc((6773 - var(--y0)) * var(--px));
   left: calc(47 * var(--px));
   width: calc(658.723 * var(--px));
 }
 
-.couple__parents--bride {
-  top: calc((7013 - var(--y0)) * var(--px));
-  left: calc(47 * var(--px));
-  width: calc(658.723 * var(--px));
-  color: #3f3f3f;
+.person--bride .person__parents {
+  width: 100%;
+  margin-top: calc(36.138 * var(--px));
+  color: var(--parents-ink, #3f3f3f);
 }
 </style>

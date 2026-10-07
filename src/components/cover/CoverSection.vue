@@ -1,23 +1,46 @@
 <script setup lang="ts">
-import photo from '../../assets/cover/00_2268-45_photo.webp'
+import designPhoto from '../../assets/cover/00_2268-45_photo.webp'
 import monogram from '../../assets/cover/01_2268-57_monogram.webp'
+import { computed } from 'vue'
 import FireFlies from '../common/FireFlies.vue'
+import { useFitSize } from '../../composables/useFitSize'
 
-withDefaults(defineProps<{ coupleNames?: string; guestName: string }>(), {
+const props = withDefaults(defineProps<{ coupleNames?: string; guestName: string; photo?: string | null }>(), {
   coupleNames: 'Ahmad & Salsabilla',
+  photo: null,
 })
 defineEmits<{ open: [] }>()
+
+/* "Ahmad &" / "Salsabilla", the design's break; each line must fit the frame's width. */
+const lines = computed(() => {
+  const [a, ...b] = props.coupleNames.split('&')
+  const second = b.join('&').trim()
+  return second ? [`${a.trim()} &`, second] : [a.trim()].filter(Boolean)
+})
+/*
+ * The frame covers the screen, so on tall phones its sides are cropped: a 20:9 phone shows
+ * only ~505 of its 623 design px. Long names are fitted to what every phone keeps visible,
+ * centred on the frame. Design sizes for the design's names; longer names shrink (and only
+ * wrap past `min`).
+ */
+const SAFE = 480
+const coupleFs = useFitSize(lines, '--font-cover-couple', 110.91, SAFE, { min: 52 })
+const guestFs = useFitSize(() => props.guestName, '--font-cover-guest', 30, SAFE, { italic: true, min: 19 })
 </script>
 
 <template>
   <!-- Figma Frame 21 (2268:35, file "Desain Wesbite 25ribuaja"), 623 x 1128. Coords below are frame-local design px. -->
   <section class="cover">
     <div class="cover__frame">
-      <img :src="photo" alt="" width="576" height="885" class="cover__photo" />
+      <!-- The dashboard's cover photo fills the frame; the design's keeps its stretched box. -->
+      <img v-if="photo" :src="photo" alt="" class="cover__photo cover__photo--own" />
+      <img v-else :src="designPhoto" alt="" width="576" height="885" class="cover__photo" />
       <FireFlies class="cover__flies" />
 
       <p class="cover__eyebrow">The Wedding Of</p>
-      <h1 class="cover__couple">{{ coupleNames }}</h1>
+      <h1 class="cover__couple" :style="{ '--fs': coupleFs }">
+        <span v-for="line in lines" :key="line">{{ line }}</span>
+      </h1>
 
       <button type="button" class="cover__monogram" @click="$emit('open')">
         <span class="sr-only">Buka undangan</span>
@@ -25,7 +48,7 @@ defineEmits<{ open: [] }>()
       </button>
 
       <p class="cover__dear">kepada Yth.</p>
-      <p class="cover__guest">{{ guestName }}</p>
+      <p class="cover__guest" :style="{ '--fs': guestFs }">{{ guestName }}</p>
     </div>
   </section>
 </template>
@@ -92,6 +115,13 @@ defineEmits<{ open: [] }>()
   animation: settle calc(2600ms * var(--motion)) cubic-bezier(0.16, 1, 0.3, 1) backwards;
 }
 
+.cover__photo--own {
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
 /* Both title layers share one embossed shadow, scaled with their font size. */
 .cover__frame > .cover__flies {
   inset: 0;
@@ -100,7 +130,8 @@ defineEmits<{ open: [] }>()
 
 .cover__eyebrow {
   --delay: 300ms;
-  top: calc(183 * var(--px));
+  /* Figma top 183; +1 px to match Hotte Brush's baseline in Chromium. */
+  top: calc(184 * var(--px));
   left: calc(118 * var(--px));
   width: calc(388 * var(--px));
   font-family: var(--font-cover-eyebrow);
@@ -114,17 +145,23 @@ defineEmits<{ open: [] }>()
 
 .cover__couple {
   --delay: 520ms;
+  /* Figma's box is 392 wide at x 116 (centre 312); widened to the 480 every phone shows. */
   top: calc(264 * var(--px));
-  left: calc(116 * var(--px));
-  width: calc(392 * var(--px));
+  left: calc(72 * var(--px));
+  width: calc(480 * var(--px));
   font-family: var(--font-cover-couple);
-  font-size: calc(110.91 * var(--px));
+  font-size: calc(var(--fs) * var(--px));
   font-weight: 400;
-  line-height: calc(104 * var(--px));
+  /* 104 / 110.91: the design's leading, kept as the size shrinks. */
+  line-height: 0.9377;
   color: var(--cover-title);
   text-shadow:
     calc(1.412 * var(--px)) calc(2.824 * var(--px)) 0 rgb(0 0 0 / 0.47),
     calc(-1.412 * var(--px)) 0 calc(3.4 * var(--px)) rgb(255 255 255 / 0.9);
+}
+
+.cover__couple span {
+  display: block;
 }
 
 .cover__monogram {
@@ -185,11 +222,12 @@ defineEmits<{ open: [] }>()
 
 .cover__guest {
   --delay: 1280ms;
+  /* Figma's box is 373 wide at x 125 (centre 311.5); widened to the visible 480. */
   top: calc(844 * var(--px));
-  left: calc(125 * var(--px));
-  width: calc(373 * var(--px));
+  left: calc(71.5 * var(--px));
+  width: calc(480 * var(--px));
   font-family: var(--font-cover-guest);
-  font-size: calc(30 * var(--px));
+  font-size: calc(var(--fs) * var(--px));
   font-style: italic;
   line-height: calc(62 * var(--px));
   color: var(--cover-guest);

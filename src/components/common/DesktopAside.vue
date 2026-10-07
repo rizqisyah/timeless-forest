@@ -4,14 +4,24 @@
  * column on the right, this side carries a photo, the couple and the verse. Not in the
  * Figma frames — built from Frame 21's photo and Frame 20's palette and type.
  */
-import photo from '../../assets/cover/00_2268-45_photo.webp'
+import { computed } from 'vue'
+import designPhoto from '../../assets/cover/00_2268-45_photo.webp'
 import FireFlies from './FireFlies.vue'
-import { wedding } from '../../data/wedding'
+import { useWedding } from '../../composables/useWedding'
+
+const { invite, coupleNames } = useWedding()
+// "Ahmad & Salsabilla" with the ampersand set in italic between the two names.
+const names = computed(() => {
+  const [a, ...b] = coupleNames.value.split('&')
+  return { first: a.trim(), second: b.join('&').trim() }
+})
+// The dashboard's cover photo, as on the cover itself.
+const photo = computed(() => invite.value.photos.cover || designPhoto)
 </script>
 
 <template>
   <aside class="aside" aria-hidden="true">
-    <div class="aside__photo" :style="{ backgroundImage: `url(${photo})` }"></div>
+    <div class="aside__photo" :style="{ backgroundImage: `url(${JSON.stringify(photo)})` }"></div>
     <div class="aside__veil"></div>
     <FireFlies :count="26" />
 
@@ -19,14 +29,17 @@ import { wedding } from '../../data/wedding'
       <header>
         <p class="aside__eyebrow">The Wedding Of</p>
         <h2 class="aside__couple">
-          {{ wedding.groom.nickname }} <span class="aside__amp">&amp;</span> {{ wedding.bride.nickname }}
+          {{ names.first }}
+          <template v-if="names.second"><span class="aside__amp">&amp;</span> {{ names.second }}</template>
         </h2>
-        <p class="aside__date">{{ wedding.akad.day }} · {{ wedding.akad.date }}</p>
+        <p v-if="invite.akad" class="aside__date">
+          {{ [invite.akad.day, invite.akad.date].filter(Boolean).join(' · ') }}
+        </p>
       </header>
 
-      <figure class="aside__quote">
-        <blockquote>“{{ wedding.quote.text.replace(/"$/, '') }}”</blockquote>
-        <figcaption>{{ wedding.quote.source }}</figcaption>
+      <figure v-if="invite.quote.text" class="aside__quote">
+        <blockquote>“{{ invite.quote.text.replace(/"$/, '') }}”</blockquote>
+        <figcaption>{{ invite.quote.source }}</figcaption>
       </figure>
     </div>
   </aside>
