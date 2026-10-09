@@ -49,5 +49,11 @@ const { invite, live } = useWedding()
   background: var(--sheet-bg);
   /* Sprites overhang their band and drift while animating; nothing may widen the page. */
   overflow-x: clip;
+  /*
+   * The sheet's own stacking (sprites by Figma paint order, live text at 1000) stays inside
+   * it, so nothing in the invitation can rise above the overlays drawn over it: the gallery
+   * viewer, the music button, the toast.
+   */
+  isolation: isolate;
 }
 </style>

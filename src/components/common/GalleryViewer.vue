@@ -73,7 +73,8 @@ function onUp(e: PointerEvent) {
 .viewer {
   position: fixed;
   inset: 0;
-  z-index: 120;
+  /* Above the music button (99): a full-screen view covers everything. */
+  z-index: 200;
   display: flex;
   align-items: center;
   justify-content: center;
