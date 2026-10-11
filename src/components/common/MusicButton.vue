@@ -10,11 +10,14 @@
 import { onBeforeUnmount, onMounted, ref } from 'vue'
 import vinyl from '../../assets/music/vinyl.webp'
 import { useWedding } from '../../composables/useWedding'
+import { MUSIC_HOLD, MUSIC_RELEASE } from '../../composables/useMusicHold'
 
 const audioEl = ref<HTMLAudioElement | null>(null)
 const playing = ref(false)
 /** True only while the page itself paused the song; a guest's own pause is left alone. */
 let pausedByLeaving = false
+/** True while a video with sound has the song paused (useMusicHold). */
+let heldByVideo = false
 const { invite } = useWedding()
 
 /* ---- intro skip + loop (native `loop` would replay the intro), as in TemaEnvelopMaroon ---- */
@@ -63,8 +66,23 @@ async function play() {
 function toggle() {
   if (!audioEl.value) return
   pausedByLeaving = false
+  heldByVideo = false
   if (playing.value) audioEl.value.pause()
   else play()
+}
+
+/* ---- a video with sound ---- */
+
+function onHold() {
+  if (!audioEl.value || audioEl.value.paused) return
+  heldByVideo = true
+  audioEl.value.pause()
+}
+
+function onRelease() {
+  if (!heldByVideo) return
+  heldByVideo = false
+  if (!document.hidden) play()
 }
 
 /* ---- leaving the page ---- */
@@ -88,11 +106,15 @@ onMounted(() => {
   document.addEventListener('visibilitychange', onVisibility)
   // iOS Safari can skip visibilitychange when the tab is backgrounded or closed.
   window.addEventListener('pagehide', leave)
+  window.addEventListener(MUSIC_HOLD, onHold)
+  window.addEventListener(MUSIC_RELEASE, onRelease)
 })
 
 onBeforeUnmount(() => {
   document.removeEventListener('visibilitychange', onVisibility)
   window.removeEventListener('pagehide', leave)
+  window.removeEventListener(MUSIC_HOLD, onHold)
+  window.removeEventListener(MUSIC_RELEASE, onRelease)
   audioEl.value?.pause()
 })
 </script>

@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import SheetBand from './SheetBand.vue'
+import OpeningVideo from '../sections/OpeningVideo.vue'
 import HeroSection from '../sections/HeroSection.vue'
 import QuoteSection from '../sections/QuoteSection.vue'
 import CoupleSection from '../sections/CoupleSection.vue'
@@ -11,9 +12,12 @@ import WishesSection from '../sections/WishesSection.vue'
 import RsvpSection from '../sections/RsvpSection.vue'
 import ThanksSection from '../sections/ThanksSection.vue'
 import { useWedding } from '../../composables/useWedding'
-import { hasGallery, hasGift, hasVideo } from '../../data/wedding'
+import { hasEvents, hasGallery, hasGift, hasVideo } from '../../data/wedding'
 
 import closingPlate from '../../assets/sheet/10-closing.webp'
+
+/** The cover has been opened: the opening video starts then, not at page load. */
+defineProps<{ open: boolean }>()
 
 const { invite, live } = useWedding()
 </script>
@@ -24,12 +28,14 @@ const { invite, live } = useWedding()
     Gallery, video and gift are left out when the wedding has nothing for them.
   -->
   <div class="sheet">
+    <!-- General Settings' Background Video, right after the cover (only when there is one). -->
+    <OpeningVideo :active="open" />
     <HeroSection />
     <QuoteSection />
     <CoupleSection />
     <GallerySection v-if="hasGallery(invite, live)" />
     <VideoSection v-if="hasVideo(invite, live)" />
-    <EventsSection />
+    <EventsSection v-if="hasEvents(invite, live)" />
     <GiftSection v-if="hasGift(invite, live)" />
     <WishesSection />
     <RsvpSection />

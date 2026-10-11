@@ -29,13 +29,24 @@ const props = defineProps<{
   bottom: number
   label: string
   eager?: boolean
+  /**
+   * Where the plate image itself starts and ends, when this band shows only a slice of it
+   * (the events band with a single event leaves out the first frame). Default: top / bottom.
+   */
+  plateTop?: number
+  plateBottom?: number
 }>()
+
+const pTop = computed(() => props.plateTop ?? props.top)
+const pBottom = computed(() => props.plateBottom ?? props.bottom)
+/* Layers belong to this band by name and, for a slice, by lying inside it. */
+const inBand = (band: string, y: number) => band === props.name && y >= props.top && y < props.bottom
 
 const files = import.meta.glob<string>('../../assets/sprites/*.webp', { eager: true, import: 'default' })
 
 const layers = computed(() =>
   sprites
-    .filter((s) => s.band === props.name)
+    .filter((s) => inBand(s.band, s.y))
     .map((s) => ({
       ...s,
       src: files[`../../assets/sprites/${s.name}.webp`],
@@ -46,7 +57,7 @@ const layers = computed(() =>
 )
 
 /* Photos with no frame to ride in: placed in the band, stacked by Figma's paint order. */
-const solo = computed(() => photoSlots.filter((p) => p.band === props.name && !p.frame))
+const solo = computed(() => photoSlots.filter((p) => inBand(p.band, p.y) && !p.frame))
 
 /* Gallery slots follow the carousel; every other slot shows its own pick. */
 function srcOf(p: PhotoSlot) {
@@ -61,15 +72,18 @@ function srcOf(p: PhotoSlot) {
     :aria-label="label"
     :style="{ '--y0': top, '--h': bottom - top }"
   >
-    <img
-      :src="plate"
-      alt=""
-      class="band__plate"
-      width="1121"
-      :height="Math.round((bottom - top) * 1.5)"
-      :loading="eager ? 'eager' : 'lazy'"
-      decoding="async"
-    />
+    <div class="band__plate-clip">
+      <img
+        :src="plate"
+        alt=""
+        class="band__plate"
+        width="1121"
+        :height="Math.round((pBottom - pTop) * 1.5)"
+        :style="{ top: `calc(${pTop - top} * var(--px))`, height: `calc(${pBottom - pTop} * var(--px))` }"
+        :loading="eager ? 'eager' : 'lazy'"
+        decoding="async"
+      />
+    </div>
     <div
       v-for="s in layers"
       :key="s.name"
@@ -147,11 +161,17 @@ function srcOf(p: PhotoSlot) {
   height: calc(var(--h) * var(--px));
 }
 
-.band__plate {
+/* The plate is clipped to the band (sprites are not): a slice shows only its part. */
+.band__plate-clip {
   position: absolute;
   inset: 0;
+  overflow: hidden;
+}
+
+.band__plate {
+  position: absolute;
+  left: 0;
   width: 100%;
-  height: 100%;
   max-width: none;
   pointer-events: none;
   user-select: none;
@@ -186,7 +206,7 @@ function srcOf(p: PhotoSlot) {
  * Unscoped: the live layers come from the sections' own scopes. Each is placed in design px
  * and sits above every sprite; sprites stack among themselves by Figma's paint order.
  */
-.sheet-band > :not(img) {
+.sheet-band > :not(img, .band__plate-clip) {
   position: absolute;
   z-index: 1000;
   margin: 0;

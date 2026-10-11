@@ -10,7 +10,7 @@ import AppToast from './components/common/AppToast.vue'
 import GalleryViewer from './components/common/GalleryViewer.vue'
 
 // Starts the getHome request; the cover shows while it is in flight.
-const { guestName, coupleNames, invite } = useWedding()
+const { guestName, coupleNames, invite, loading } = useWedding()
 const isOpen = ref(false)
 const column = ref<HTMLElement | null>(null)
 
@@ -37,12 +37,13 @@ async function openInvitation() {
             :couple-names="coupleNames"
             :guest-name="guestName"
             :photo="invite.photos.cover"
+            :ready="!loading"
             @open="openInvitation"
           />
         </div>
       </Transition>
 
-      <InviteSheet class="invitation" :class="{ 'is-visible': isOpen }" :inert="!isOpen" />
+      <InviteSheet class="invitation" :class="{ 'is-visible': isOpen }" :inert="!isOpen" :open="isOpen" />
     </div>
 
     <MusicButton v-if="isOpen" />

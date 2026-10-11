@@ -1,15 +1,27 @@
 <script setup lang="ts">
 import designPhoto from '../../assets/cover/00_2268-45_photo.webp'
 import monogram from '../../assets/cover/01_2268-57_monogram.webp'
-import { computed } from 'vue'
+import { computed, ref, watch } from 'vue'
 import FireFlies from '../common/FireFlies.vue'
 import { useFitSize } from '../../composables/useFitSize'
 
-const props = withDefaults(defineProps<{ coupleNames?: string; guestName: string; photo?: string | null }>(), {
-  coupleNames: 'Ahmad & Salsabilla',
-  photo: null,
-})
+const props = withDefaults(
+  defineProps<{
+    coupleNames?: string
+    guestName: string
+    /** The dashboard's Cover Image (wedding.image_cover). */
+    photo?: string | null
+    /** false while getHome is in flight: no photo yet, so the design's never flashes first. */
+    ready?: boolean
+  }>(),
+  { coupleNames: 'Ahmad & Salsabilla', photo: null, ready: true },
+)
 defineEmits<{ open: [] }>()
+
+/* A Cover Image that fails to load falls back to the design's photo, not a broken image. */
+const failed = ref(false)
+watch(() => props.photo, () => (failed.value = false))
+const ownPhoto = computed(() => (props.photo && !failed.value ? props.photo : null))
 
 /* "Ahmad &" / "Salsabilla", the design's break; each line must fit the frame's width. */
 const lines = computed(() => {
@@ -32,9 +44,14 @@ const guestFs = useFitSize(() => props.guestName, '--font-cover-guest', 30, SAFE
   <!-- Figma Frame 21 (2268:35, file "Desain Wesbite 25ribuaja"), 623 x 1128. Coords below are frame-local design px. -->
   <section class="cover">
     <div class="cover__frame">
-      <!-- The dashboard's cover photo fills the frame; the design's keeps its stretched box. -->
-      <img v-if="photo" :src="photo" alt="" class="cover__photo cover__photo--own" />
-      <img v-else :src="designPhoto" alt="" width="576" height="885" class="cover__photo" />
+      <!--
+        The dashboard's Cover Image fills the frame; the design's photo (with its stretched box)
+        only when the wedding has none. Nothing until the data is in.
+      -->
+      <template v-if="ready">
+        <img v-if="ownPhoto" :src="ownPhoto" alt="" class="cover__photo cover__photo--own" @error="failed = true" />
+        <img v-else :src="designPhoto" alt="" width="576" height="885" class="cover__photo" />
+      </template>
       <FireFlies class="cover__flies" />
 
       <p class="cover__eyebrow">The Wedding Of</p>

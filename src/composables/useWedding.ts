@@ -191,7 +191,9 @@ const invite = computed<Invite>(() => {
     str(override[group]?.[key]) || str(master[group]?.[key])
   const spouse = str(w.image_spouse)
   const heroPhoto = pick('images', 'foto_mempelai_setelah_buka') || spouse
-  const coverPhoto = pick('backgrounds', 'cover') || str(w.image_cover)
+  // Cover Image (wedding.image_cover, "background halaman cover") is the cover. The older
+  // backgrounds.cover override has no input in the dashboard any more, so it is only a fallback.
+  const coverPhoto = str(w.image_cover) || pick('backgrounds', 'cover')
 
   const opening = override.words?.opening_message
   const countdown =
@@ -203,6 +205,9 @@ const invite = computed<Invite>(() => {
     bride: person(rawBride),
     groomFirst: isGroomFirst,
     countdownTo: countdown || null,
+    // "Teks Pembuka / Text 'The Wedding Of'" in Theme Override → Kata-kata; the design's line
+    // when the wedding (and the theme's master config) leave it empty.
+    opening: str(override.words?.the_wedding_of) || str(master.words?.the_wedding_of) || demoInvite.opening,
     quote: { source: quoteField('quote_verse', 'verse'), text: quoteField('quote_text', 'text') },
     greeting: typeof opening === 'string' && opening.trim() ? opening.trim() : DEMO_GREETING,
     akad: acara[0] ? toEvent(acara[0], lang) : null,
@@ -232,7 +237,8 @@ const invite = computed<Invite>(() => {
       couple: spouse || heroPhoto,
       gallery,
     },
-    video: str(w.video_url) || str(override.words?.video_prewed) || str(override.video_prewed) || '',
+    prewedVideo: str(override.words?.video_prewed) || str(override.video_prewed) || '',
+    backgroundVideo: str(w.video_url) || '',
   }
 })
 

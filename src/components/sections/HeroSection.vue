@@ -5,7 +5,10 @@ import { useWedding } from '../../composables/useWedding'
 import { computed } from 'vue'
 import { useFitSize } from '../../composables/useFitSize'
 
-const { coupleNames, coupleLines } = useWedding()
+const { coupleNames, coupleLines, invite } = useWedding()
+
+// "Undangan Pernikahan", or the dashboard's Teks Pembuka; a long one shrinks to one line.
+const openingFs = useFitSize(() => invite.value.opening, '--font-hero-eyebrow', 40.76, 680, { min: 22 })
 
 /*
  * One line across the frame, as drawn; long names shrink to fit it. Past the point where
@@ -22,7 +25,9 @@ const coupleFs = computed(() => (split.value ? twoLines.value : oneLine.value))
   <SheetBand name="hero" :plate="plate" :top="0" :bottom="1149" label="Pembuka" eager>
     <!-- Container 2226:131 -->
     <hgroup class="hero__title">
-      <p v-reveal:up="900" class="hero__eyebrow">Undangan Pernikahan</p>
+      <p v-reveal:up="900" class="hero__eyebrow">
+        <span :style="{ '--fs': openingFs }">{{ invite.opening }}</span>
+      </p>
       <h1 v-reveal:emboss="1150" class="hero__couple" :class="{ 'is-split': split }" :style="{ '--fs': coupleFs }">
         <template v-if="split"><span v-for="line in coupleLines" :key="line">{{ line }}</span></template>
         <template v-else>{{ coupleNames }}</template>
@@ -46,10 +51,18 @@ const coupleFs = computed(() => (split.value ? twoLines.value : oneLine.value))
   text-align: center;
 }
 
+/*
+ * The paragraph keeps the design's 40.76 px line box (its strut), so the names below never
+ * move; only the text inside shrinks when a long Teks Pembuka needs it.
+ */
 .hero__eyebrow {
   font-family: var(--font-hero-eyebrow);
   font-size: calc(40.76 * var(--px));
   line-height: normal;
+}
+
+.hero__eyebrow span {
+  font-size: calc(var(--fs) * var(--px));
 }
 
 .hero__couple {

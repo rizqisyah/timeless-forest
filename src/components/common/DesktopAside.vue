@@ -9,19 +9,23 @@ import designPhoto from '../../assets/cover/00_2268-45_photo.webp'
 import FireFlies from './FireFlies.vue'
 import { useWedding } from '../../composables/useWedding'
 
-const { invite, coupleNames } = useWedding()
+const { invite, coupleNames, loading } = useWedding()
 // "Ahmad & Salsabilla" with the ampersand set in italic between the two names.
 const names = computed(() => {
   const [a, ...b] = coupleNames.value.split('&')
   return { first: a.trim(), second: b.join('&').trim() }
 })
-// "Left Cover BG (Desktop)", then Background 1, then the cover photo (see useWedding).
-const photo = computed(() => invite.value.photos.left || designPhoto)
+// "Left Cover BG (Desktop)", then Background 1, then the Cover Image (see useWedding); the
+// design's photo only once loaded with none of those, so it never flashes before the real one.
+const photo = computed(() => (loading.value ? null : invite.value.photos.left || designPhoto))
 </script>
 
 <template>
   <aside class="aside" aria-hidden="true">
-    <div class="aside__photo" :style="{ backgroundImage: `url(${JSON.stringify(photo)})` }"></div>
+    <div
+      class="aside__photo"
+      :style="photo ? { backgroundImage: `url(${JSON.stringify(photo)})` } : undefined"
+    ></div>
     <div class="aside__veil"></div>
     <FireFlies :count="26" />
 

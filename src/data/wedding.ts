@@ -56,6 +56,8 @@ export interface Invite {
   /** wedding.order_groom_first: which partner leads in names and the couple section. */
   groomFirst: boolean
   countdownTo: string | Date | null
+  /** The hero's line above the names: "Teks Pembuka" (words.the_wedding_of) in the dashboard. */
+  opening: string
   quote: { source: string; text: string }
   greeting: string
   akad: WeddingEvent | null
@@ -86,8 +88,16 @@ export interface Invite {
     couple: string | null
     gallery: string[]
   }
-  /** Prewedding video: a YouTube link or a direct video file. '' = none. */
-  video: string
+  /**
+   * The VIDEO PREWED band's video (Theme Override, Kata-kata: words.video_prewed). A YouTube
+   * link or a video file; '' = none.
+   */
+  prewedVideo: string
+  /**
+   * General Settings, "Background Video" (wedding.video_url): the full-height clip that opens
+   * the invitation right after the cover. '' = none.
+   */
+  backgroundVideo: string
 }
 
 /** Which sections a wedding can leave out by having nothing to put in them. */
@@ -98,7 +108,11 @@ export function hasGift(i: Invite, live: boolean) {
   return !live || i.accounts.length > 0 || !!i.giftAddress
 }
 export function hasVideo(i: Invite, live: boolean) {
-  return !live || !!i.video
+  return !live || !!i.prewedVideo
+}
+/** One event takes the second frame (EventsSection); none leaves the section out. */
+export function hasEvents(i: Invite, live: boolean) {
+  return !live || !!i.akad
 }
 
 /** Used when a wedding has no music_url of its own. */
@@ -131,6 +145,7 @@ export const demoInvite: Invite = {
   groomFirst: true,
   // The design's sample date has passed, so the countdown reads 0 0 0 0 as drawn.
   countdownTo: '2021-04-22T07:00:00+07:00',
+  opening: 'Undangan Pernikahan',
   quote: {
     source: 'QS Ar-Rum 21',
     text: 'Dan di antara tanda-tanda (kebesaran)-Nya ialah Dia menciptakan pasangan-pasangan untukmu dari jenismu sendiri, agar kamu cenderung dan merasa tenteram kepadanya, dan Dia menjadikan di antaramu rasa kasih dan sayang"',
@@ -160,5 +175,6 @@ export const demoInvite: Invite = {
     couple: null,
     gallery: [],
   },
-  video: '',
+  prewedVideo: '',
+  backgroundVideo: '',
 }
