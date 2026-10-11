@@ -35,6 +35,8 @@ const props = defineProps<{
    */
   plateTop?: number
   plateBottom?: number
+  /** Sprites the section draws itself instead (the events heading in English). */
+  without?: string[]
 }>()
 
 const pTop = computed(() => props.plateTop ?? props.top)
@@ -46,7 +48,7 @@ const files = import.meta.glob<string>('../../assets/sprites/*.webp', { eager: t
 
 const layers = computed(() =>
   sprites
-    .filter((s) => inBand(s.band, s.y))
+    .filter((s) => inBand(s.band, s.y) && !props.without?.includes(s.name))
     .map((s) => ({
       ...s,
       src: files[`../../assets/sprites/${s.name}.webp`],

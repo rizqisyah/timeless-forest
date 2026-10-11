@@ -18,12 +18,20 @@ const { invite, text } = useWedding()
 const CUT_FROM = 10370
 const CUT_TO = 11830
 const single = computed(() => !!invite.value.akad && !invite.value.resepsi)
+
+/*
+ * ACARA PERNIKAHAN is the design's own embossed art (sprite events-title). An English
+ * invitation leaves it out and sets its heading live in the same type and place.
+ */
+const english = computed(() => text.value.lang === 'en')
+const without = computed(() => (english.value ? ['events-title'] : []))
 </script>
 
 <template>
   <template v-if="!single">
-    <SheetBand name="events" :plate="plate" :top="9554" :bottom="13878" :label="text.bandEvents">
-      <h2 class="sr-only">{{ text.bandEvents }}</h2>
+    <SheetBand name="events" :plate="plate" :top="9554" :bottom="13878" :without="without" :label="text.bandEvents">
+      <h2 v-if="english" v-reveal:emboss class="events__heading">{{ text.eventsHeading(single ? 1 : 2) }}</h2>
+      <h2 v-else class="sr-only">{{ text.bandEvents }}</h2>
       <EventBlock
         v-if="invite.akad"
         :event="invite.akad"
@@ -46,8 +54,9 @@ const single = computed(() => !!invite.value.akad && !invite.value.resepsi)
   </template>
 
   <template v-else>
-    <SheetBand name="events" :plate="plate" :top="9554" :bottom="CUT_FROM" :plate-bottom="13878" :label="text.bandEvents">
-      <h2 class="sr-only">{{ text.bandEvents }}</h2>
+    <SheetBand name="events" :plate="plate" :top="9554" :bottom="CUT_FROM" :plate-bottom="13878" :without="without" :label="text.bandEvents">
+      <h2 v-if="english" v-reveal:emboss class="events__heading">{{ text.eventsHeading(single ? 1 : 2) }}</h2>
+      <h2 v-else class="sr-only">{{ text.bandEvents }}</h2>
     </SheetBand>
     <SheetBand name="events" :plate="plate" :top="CUT_TO" :bottom="13878" :plate-top="9554" :label="text.bandEvent">
       <EventBlock
@@ -61,3 +70,28 @@ const single = computed(() => !!invite.value.akad && !invite.value.resepsi)
     </SheetBand>
   </template>
 </template>
+
+<style scoped>
+/*
+ * Text 2233:101: Instrument Serif in the paper's grey, two centred lines, embossed — the
+ * design's own font and --emboss grey, which a theme override's accent recolours like the
+ * event titles under it.
+ */
+.events__heading {
+  top: calc((9816 - var(--y0)) * var(--px));
+  left: calc(47 * var(--px));
+  width: calc(651 * var(--px));
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: calc(136.981 * var(--px));
+  font-weight: 400;
+  line-height: calc(113.945 * var(--px));
+  color: var(--emboss);
+  text-align: center;
+  text-transform: uppercase;
+  white-space: pre-line;
+  text-shadow:
+    calc(1.125 * var(--px)) calc(2.25 * var(--px)) calc(2.812 * var(--px)) rgb(0 0 0 / 0.47),
+    calc(-1.125 * var(--px)) 0 calc(4.5 * var(--px)) rgb(255 255 255 / 0.9);
+}
+</style>

@@ -100,13 +100,25 @@ function parseJson(raw: unknown): any {
   }
 }
 
+/** The usual Indonesian event names, for an English invitation; any other name stays as written. */
+const EVENT_NAMES_EN: Record<string, string> = {
+  'akad nikah': 'Holy Matrimony',
+  akad: 'Holy Matrimony',
+  'pemberkatan nikah': 'Holy Matrimony',
+  pemberkatan: 'Holy Matrimony',
+  'resepsi pernikahan': 'Wedding Reception',
+  resepsi: 'Wedding Reception',
+}
+
 function toEvent(a: any, lang: string | null): WeddingEvent {
   const { day, date } = formatEventDate(a.event_date, lang)
   // "Akad Nikah | Family Only": the heading, then the small label above the day.
-  const [title, ...rest] = String(a.title || '').split('|')
+  const [raw, ...rest] = String(a.title || '').split('|')
   const note = rest.join('|').trim()
+  const title = raw.trim()
+  const english = dateLocale(lang) === 'en-GB'
   return {
-    title: title.trim(),
+    title: (english && EVENT_NAMES_EN[title.toLowerCase().replace(/\s+/g, ' ')]) || title,
     note: note || undefined,
     day,
     date,

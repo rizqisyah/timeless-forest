@@ -23,7 +23,8 @@ const id = {
   bandOpening: 'Pembuka',
   bandEvents: 'Acara Pernikahan',
   bandEvent: 'Acara',
-  // events
+  // events (the heading is the design's own art in Indonesian; see EventsSection)
+  eventsHeading: (n: number): string => (n === 1 ? 'Acara' : 'Acara\nPernikahan'),
   akadTitle: 'Akad Nikah',
   resepsiTitle: 'Resepsi',
   linkMaps: 'LINK MAPS',
@@ -97,6 +98,7 @@ const en: Text = {
   bandOpening: 'Opening',
   bandEvents: 'Wedding Events',
   bandEvent: 'Event',
+  eventsHeading: (n: number) => (n === 1 ? 'Wedding\nEvent' : 'Wedding\nEvents'),
   akadTitle: 'Holy Matrimony',
   resepsiTitle: 'Wedding Reception',
   linkMaps: 'VIEW MAP',
