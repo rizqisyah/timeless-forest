@@ -38,16 +38,15 @@ export function parseEventStart(date?: string | null, time?: string | null): Dat
 }
 
 /**
- * "Anak pertama dari Bapak … dan Ibu …". getHome ships `child_of`, `father_name` and
+ * "Anak pertama dari Bapak … Ibu …". getHome ships `child_of`, `father_name` and
  * `mother_name` separately, any of them blank; `child_of` is often the whole sentence.
+ * The names are shown exactly as typed, with no "dan" / "&" added between them.
  */
 export function parentLine(p?: { child_of?: string | null; father_name?: string | null; mother_name?: string | null } | null) {
   if (!p) return ''
   const prefix = (p.child_of || '').trim()
-  const names = [p.father_name, p.mother_name]
-    .map((s) => (s || '').trim().replace(/^&\s*|\s*&$/g, ''))
-    .filter(Boolean)
-  const parents = names.join(' dan ')
+  const names = [p.father_name, p.mother_name].map((s) => (s || '').trim()).filter(Boolean)
+  const parents = names.join(' ')
   if (prefix && names.length && names.every((n) => prefix.includes(n))) return prefix
   return [prefix, parents].filter(Boolean).join(' ').trim()
 }
