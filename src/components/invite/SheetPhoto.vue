@@ -53,7 +53,7 @@ const style = computed(() => {
     top: `calc(${s.y - props.originY} * var(--px))`,
     width: `calc(${s.w} * var(--px))`,
     height: `calc(${s.h} * var(--px))`,
-    transform: s.transform,
+    transform: shown.value && s.liveTransform ? s.liveTransform : s.transform,
     WebkitMask: mask,
     mask,
     '--dir': props.dir ?? 1,

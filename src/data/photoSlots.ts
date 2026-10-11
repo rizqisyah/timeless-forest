@@ -24,6 +24,8 @@ export interface PhotoSlot {
   shape: 'rect' | 'arch' | 'ellipse' | 'mask'
   /** CSS transform about the box centre, as drawn. */
   transform?: string
+  /** The transform for a dashboard photo, when the drawn one should not apply to it. */
+  liveTransform?: string
   /** The gallery thumbnails' inner shadow. */
   inset?: boolean
   frame?: string
@@ -73,7 +75,8 @@ export const photoSlots: PhotoSlot[] = [
     // Ellipse 40: 151.827 x 222 turned -4deg inside its 166.946 x 232.052 box at (206, 18791.66).
     name: 'mirror-left', node: '2246:251', band: 'closing', frame: 'closing-mirrors', above: true,
     x: 213.56, y: 18796.69, w: 151.827, h: 222, shape: 'ellipse', transform: 'rotate(-4deg)',
-    pick: (p) => p.couple,
+    // The locket holds gallery photos 1 and 2 (the couple photo while the gallery is empty).
+    pick: (p) => p.gallery[0] || p.couple,
   },
   {
     // Ellipse 41: flipped and turned, so the right mirror shows the left one's reflection.
@@ -81,7 +84,10 @@ export const photoSlots: PhotoSlot[] = [
     name: 'mirror-right', node: '2246:252', band: 'closing', frame: 'closing-mirrors', above: true,
     x: 431.31, y: 18802.35, w: 156.284, h: 218.634, shape: 'ellipse',
     transform: 'rotate(-178.81deg) scaleY(-1)',
-    pick: (p) => p.couple,
+    // That is a flip plus a 1.19deg turn: a gallery photo keeps the turn but is not mirrored.
+    liveTransform: 'rotate(1.19deg)',
+    // Gallery photo 2; with only one gallery photo, photo 1 again.
+    pick: (p) => p.gallery[1] || p.gallery[0] || p.couple,
   },
   {
     name: 'thanks', node: '2247:259', band: 'thanks', frame: 'thanks-frame',
