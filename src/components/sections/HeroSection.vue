@@ -5,7 +5,7 @@ import { useWedding } from '../../composables/useWedding'
 import { computed } from 'vue'
 import { useFitSize } from '../../composables/useFitSize'
 
-const { coupleNames, coupleLines, invite } = useWedding()
+const { coupleNames, coupleLines, invite, text } = useWedding()
 
 // "Undangan Pernikahan", or the dashboard's Teks Pembuka; a long one shrinks to one line.
 const openingFs = useFitSize(() => invite.value.opening, '--font-hero-eyebrow', 40.76, 680, { min: 22 })
@@ -22,7 +22,7 @@ const coupleFs = computed(() => (split.value ? twoLines.value : oneLine.value))
 </script>
 
 <template>
-  <SheetBand name="hero" :plate="plate" :top="0" :bottom="1149" label="Pembuka" eager>
+  <SheetBand name="hero" :plate="plate" :top="0" :bottom="1149" :label="text.bandOpening" eager>
     <!-- Container 2226:131 -->
     <hgroup class="hero__title">
       <p v-reveal:up="900" class="hero__eyebrow">

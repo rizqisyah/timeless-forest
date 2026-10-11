@@ -1,7 +1,8 @@
-import { computed, ref } from 'vue'
+import { computed, ref, watchEffect } from 'vue'
 import { getHome, resolveSlug, submitRsvp, submitUcapan, type RsvpBody } from '../lib/api'
-import { bankTitle, formatEventDate, formatName, formatWishTime, mapsSearch, parentLine, parseEventStart } from '../lib/format'
-import { DEFAULT_MUSIC, DEMO_GREETING, demoInvite, type Invite, type PhotoFocus, type WeddingEvent, type Wish } from '../data/wedding'
+import { TEXT } from '../i18n/text'
+import { bankTitle, dateLocale, formatEventDate, formatName, formatWishTime, mapsSearch, parentLine, parseEventStart } from '../lib/format'
+import { DEFAULT_MUSIC, demoInvite, type Invite, type PhotoFocus, type WeddingEvent, type Wish } from '../data/wedding'
 
 /*
  * One getHome per page load, shared by every component (module-level state, as in
@@ -32,7 +33,10 @@ function fetchHome(): Promise<void> {
     .then((data) => {
       state.value.data = data
       state.value.error = null
-      if (data?.wedding?.title) document.title = `${data.wedding.title} - Undangan Pernikahan`
+      if (data?.wedding?.title) {
+        const t = dateLocale(data.wedding.lang) === 'en-GB' ? TEXT.en : TEXT.id
+        document.title = `${data.wedding.title} - ${t.heroOpening}`
+      }
       if (data?.wedding) applyTheme(data.theme?.theme_config, parseJson(data.wedding.theme_override))
     })
     .catch((err: Error) => {
@@ -137,6 +141,16 @@ function toWish(u: any): Wish {
 const wedding = computed(() => state.value.data?.wedding ?? null)
 const live = computed(() => !!wedding.value)
 
+/*
+ * General Settings → "Bahasa Undangan" (wedding.lang): the invitation's fixed phrases
+ * (src/i18n/text.ts). Dates already follow it through formatEventDate. Indonesian, the design's
+ * own copy, until a wedding says otherwise.
+ */
+const text = computed(() => (dateLocale(wedding.value?.lang) === 'en-GB' ? TEXT.en : TEXT.id))
+watchEffect(() => {
+  document.documentElement.lang = text.value.lang
+})
+
 const invite = computed<Invite>(() => {
   const data = state.value.data
   const w = wedding.value
@@ -207,9 +221,9 @@ const invite = computed<Invite>(() => {
     countdownTo: countdown || null,
     // "Teks Pembuka / Text 'The Wedding Of'" in Theme Override → Kata-kata; the design's line
     // when the wedding (and the theme's master config) leave it empty.
-    opening: str(override.words?.the_wedding_of) || str(master.words?.the_wedding_of) || demoInvite.opening,
+    opening: str(override.words?.the_wedding_of) || str(master.words?.the_wedding_of) || text.value.heroOpening,
     quote: { source: quoteField('quote_verse', 'verse'), text: quoteField('quote_text', 'text') },
-    greeting: typeof opening === 'string' && opening.trim() ? opening.trim() : DEMO_GREETING,
+    greeting: typeof opening === 'string' && opening.trim() ? opening.trim() : text.value.greeting,
     akad: acara[0] ? toEvent(acara[0], lang) : null,
     resepsi: acara[1] ? toEvent(acara[1], lang) : null,
     accounts: rekening
@@ -317,12 +331,16 @@ function str(v: unknown): string | null {
   return typeof v === 'string' && v.trim() ? v.trim() : null
 }
 
-const guestName = computed(() => {
+/** The guest's own name — from their dashboard code, or typed into ?to= — or '' if unknown. */
+const knownGuest = computed(() => {
   const g = state.value.data?.guest
   if (g?.guest_name || g?.name) return String(g.guest_name || g.name)
-  if (!guestCode || isSystemGuestCode(guestCode)) return 'Nama Tamu'
-  return directName(guestCode) || 'Nama Tamu'
+  if (!guestCode || isSystemGuestCode(guestCode)) return ''
+  return directName(guestCode)
 })
+
+/** For the cover: the guest's name, or "Nama Tamu" / "Honored Guest". */
+const guestName = computed(() => knownGuest.value || text.value.guestFallback)
 
 /** The two partners in the wedding's order (order_groom_first): first leads everywhere. */
 const pair = computed(() => {
@@ -369,6 +387,10 @@ export function useWedding() {
     invite,
     pair,
     guestName,
+    /** The guest is known by name, so forms can be filled in for them. */
+    hasGuestName: computed(() => !!knownGuest.value),
+    /** The fixed phrases in the wedding's language (src/i18n/text.ts). */
+    text,
     coupleNames,
     coupleLines,
     sendWish,

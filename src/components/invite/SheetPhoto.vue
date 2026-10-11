@@ -10,6 +10,7 @@
 import { computed, ref } from 'vue'
 import { maskAsset, photoAsset, type PhotoSlot } from '../../data/photoSlots'
 import type { PhotoFocus } from '../../data/wedding'
+import { useWedding } from '../../composables/useWedding'
 
 const props = defineProps<{
   spec: PhotoSlot
@@ -24,6 +25,7 @@ const props = defineProps<{
 }>()
 const emit = defineEmits<{ open: [slot: number]; swipe: [step: number] }>()
 
+const { text } = useWedding()
 const fallback = computed(() => photoAsset(props.spec.name))
 
 /* An upload host that 404s must not leave a broken image in the frame: fall back instead. */
@@ -134,7 +136,7 @@ function onClick() {
       />
     </Transition>
     <span v-if="isGallery" class="sr-only">
-      {{ spec.gallery === 0 ? 'Lihat foto' : `Tampilkan foto ${spec.gallery! + 1}` }}
+      {{ spec.gallery === 0 ? text.viewPhoto : text.showPhoto(spec.gallery! + 1) }}
     </span>
   </component>
 </template>

@@ -5,7 +5,7 @@ import EventBlock from './EventBlock.vue'
 import plate from '../../assets/sheet/06-events.webp'
 import { useWedding } from '../../composables/useWedding'
 
-const { invite } = useWedding()
+const { invite, text } = useWedding()
 
 /*
  * Two events fill both frames (acara[0] as akad, acara[1] as resepsi), as drawn.
@@ -22,12 +22,12 @@ const single = computed(() => !!invite.value.akad && !invite.value.resepsi)
 
 <template>
   <template v-if="!single">
-    <SheetBand name="events" :plate="plate" :top="9554" :bottom="13878" label="Acara Pernikahan">
-      <h2 class="sr-only">Acara Pernikahan</h2>
+    <SheetBand name="events" :plate="plate" :top="9554" :bottom="13878" :label="text.bandEvents">
+      <h2 class="sr-only">{{ text.bandEvents }}</h2>
       <EventBlock
         v-if="invite.akad"
         :event="invite.akad"
-        fallback-title="Akad Nikah"
+        :fallback-title="text.akadTitle"
         :y="10901"
         :title-y="10416"
         :title-size="101.77"
@@ -36,7 +36,7 @@ const single = computed(() => !!invite.value.akad && !invite.value.resepsi)
       <EventBlock
         v-if="invite.resepsi"
         :event="invite.resepsi"
-        fallback-title="Resepsi"
+        :fallback-title="text.resepsiTitle"
         :y="12352"
         :title-y="11869"
         :title-size="125.767"
@@ -46,13 +46,13 @@ const single = computed(() => !!invite.value.akad && !invite.value.resepsi)
   </template>
 
   <template v-else>
-    <SheetBand name="events" :plate="plate" :top="9554" :bottom="CUT_FROM" :plate-bottom="13878" label="Acara Pernikahan">
-      <h2 class="sr-only">Acara Pernikahan</h2>
+    <SheetBand name="events" :plate="plate" :top="9554" :bottom="CUT_FROM" :plate-bottom="13878" :label="text.bandEvents">
+      <h2 class="sr-only">{{ text.bandEvents }}</h2>
     </SheetBand>
-    <SheetBand name="events" :plate="plate" :top="CUT_TO" :bottom="13878" :plate-top="9554" label="Acara">
+    <SheetBand name="events" :plate="plate" :top="CUT_TO" :bottom="13878" :plate-top="9554" :label="text.bandEvent">
       <EventBlock
         :event="invite.akad!"
-        fallback-title="Akad Nikah"
+        :fallback-title="text.akadTitle"
         :y="12352"
         :title-y="11869"
         :title-size="125.767"

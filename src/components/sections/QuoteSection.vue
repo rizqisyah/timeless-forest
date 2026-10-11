@@ -4,7 +4,7 @@ import plate from '../../assets/sheet/02-quote.webp'
 import { useWedding } from '../../composables/useWedding'
 import { useCountdown } from '../../composables/useCountdown'
 
-const { invite } = useWedding()
+const { invite, text } = useWedding()
 const left = useCountdown(() => invite.value.countdownTo)
 
 /* Group 30 (2228:14): a 2 x 2 grid of 171 px cells, laid out as Figma's flex columns. */
@@ -32,7 +32,7 @@ const cells = [
           <span :key="left[c.key]">{{ left[c.key] }}</span>
         </Transition>
       </p>
-      <p class="cell__label">{{ c.label }}</p>
+      <p class="cell__label">{{ text.countdown[c.key] }}</p>
     </div>
 
     <p v-reveal:up class="quote__source">{{ invite.quote.source }}</p>

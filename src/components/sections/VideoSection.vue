@@ -20,7 +20,7 @@ import { useWedding } from '../../composables/useWedding'
 import { zOf } from '../../data/photoSlots'
 import { holdMusic, releaseMusic } from '../../composables/useMusicHold'
 
-const { invite } = useWedding()
+const { invite, text } = useWedding()
 
 const source = computed(() => {
   const url = invite.value.prewedVideo
@@ -164,7 +164,7 @@ function onEnded() {
       class="video__sound"
       @click="playWithSound"
     >
-      Tonton dengan suara
+      {{ text.watchWithSound }}
     </button>
   </SheetBand>
 </template>

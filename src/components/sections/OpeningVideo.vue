@@ -8,16 +8,17 @@
  *     invitation's music plays over it (MusicButton starts the song on the same tap).
  *   - It starts when the invitation is opened (`active`), not at page load: the sheet is laid
  *     out behind the cover all along, so an autoplay attribute would run it unseen.
- *   - It plays once, then scrolls on to the hero; "Lewati" does the same at any time.
+ *   - It plays once, then scrolls on to the hero ("Lewati" does the same at any time); scrolled
+ *     back up to, it plays again.
  *
  * A YouTube link plays muted and chrome-less in YouTube's player. Google Drive cannot autoplay,
  * so its own player shows (and holds the music if the guest plays it).
  */
-import { computed, nextTick, ref, watch } from 'vue'
+import { computed, nextTick, onBeforeUnmount, ref, watch } from 'vue'
 import { useWedding } from '../../composables/useWedding'
 
 const props = defineProps<{ active: boolean }>()
-const { invite } = useWedding()
+const { invite, text } = useWedding()
 
 const source = computed(() => {
   const url = invite.value.backgroundVideo
@@ -37,20 +38,57 @@ const source = computed(() => {
 
 const player = ref<HTMLVideoElement | null>(null)
 const section = ref<HTMLElement | null>(null)
+/** The guest has moved on once (end of the first play, or "Lewati"): no more auto-scrolling. */
+let movedOn = false
+let onScreen = true
+
+function play(fromStart = false) {
+  const v = player.value
+  if (!v) return
+  if (fromStart || v.ended) v.currentTime = 0
+  v.play().catch(() => {
+    // Refused (rare when muted): the poster stays, and "Lewati" moves on.
+  })
+}
 
 watch(
   () => props.active,
   async (on) => {
     if (!on) return
     await nextTick()
-    player.value?.play().catch(() => {
-      // Refused (rare when muted): the poster stays, and "Lewati" moves on.
-    })
+    play()
   },
 )
 
+/*
+ * Plays again whenever the guest scrolls back up to it, and rests while out of sight. Only
+ * the first play-through scrolls on to the hero; after that it simply loops while watched.
+ */
+let io: IntersectionObserver | null = null
+watch(section, (el, old) => {
+  if (old) io?.unobserve(old)
+  if (!el) return
+  io ??= new IntersectionObserver(
+    ([e]) => {
+      onScreen = e.isIntersecting
+      if (!props.active) return
+      if (onScreen) play()
+      else player.value?.pause()
+    },
+    { threshold: 0.35 },
+  )
+  io.observe(el)
+})
+onBeforeUnmount(() => io?.disconnect())
+
+function onEnded() {
+  if (!movedOn) next()
+  else if (onScreen) play(true)
+}
+
 /** On to the invitation itself: the hero band right after this section. */
 function next() {
+  movedOn = true
   player.value?.pause()
   const hero = section.value?.nextElementSibling
   if (!hero) return
@@ -60,7 +98,7 @@ function next() {
 </script>
 
 <template>
-  <section v-if="source" ref="section" class="opening" aria-label="Video pembuka">
+  <section v-if="source" ref="section" class="opening" :aria-label="text.openingVideo">
     <video
       v-if="source.kind === 'file'"
       ref="player"
@@ -71,19 +109,19 @@ function next() {
       playsinline
       preload="auto"
       disablepictureinpicture
-      @ended="next"
+      @ended="onEnded"
     ></video>
     <iframe
       v-else-if="active"
       :src="source.src"
       class="opening__media"
       :class="{ 'is-background': source.kind === 'youtube' }"
-      title="Video pembuka"
+      :title="text.openingVideo"
       allow="autoplay; encrypted-media; fullscreen"
       allowfullscreen
     ></iframe>
 
-    <button type="button" class="opening__skip" @click="next">Lewati</button>
+    <button type="button" class="opening__skip" @click="next">{{ text.skip }}</button>
   </section>
 </template>
 

@@ -8,8 +8,10 @@
 import SheetBand from '../invite/SheetBand.vue'
 import plate from '../../assets/sheet/04-gallery.webp'
 import { useGalleryViewer } from '../../composables/useGalleryViewer'
+import { useWedding } from '../../composables/useWedding'
 
 const { carousel, current, photos, step } = useGalleryViewer()
+const { text } = useWedding()
 </script>
 
 <template>
@@ -18,13 +20,13 @@ const { carousel, current, photos, step } = useGalleryViewer()
     <template v-if="carousel">
       <button type="button" class="gallery__arrow gallery__arrow--prev" @click="step(-1)">
         <span aria-hidden="true">‹</span>
-        <span class="sr-only">Foto sebelumnya</span>
+        <span class="sr-only">{{ text.prevPhoto }}</span>
       </button>
       <button type="button" class="gallery__arrow gallery__arrow--next" @click="step(1)">
         <span aria-hidden="true">›</span>
-        <span class="sr-only">Foto berikutnya</span>
+        <span class="sr-only">{{ text.nextPhoto }}</span>
       </button>
-      <p class="sr-only" aria-live="polite">Foto {{ current + 1 }} dari {{ photos.length }}</p>
+      <p class="sr-only" aria-live="polite">{{ text.photoOf(current + 1, photos.length) }}</p>
     </template>
   </SheetBand>
 </template>

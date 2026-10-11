@@ -4,6 +4,7 @@ import monogram from '../../assets/cover/01_2268-57_monogram.webp'
 import { computed, ref, watch } from 'vue'
 import FireFlies from '../common/FireFlies.vue'
 import { useFitSize } from '../../composables/useFitSize'
+import { useWedding } from '../../composables/useWedding'
 
 const props = withDefaults(
   defineProps<{
@@ -17,6 +18,7 @@ const props = withDefaults(
   { coupleNames: 'Ahmad & Salsabilla', photo: null, ready: true },
 )
 defineEmits<{ open: [] }>()
+const { text } = useWedding()
 
 /* A Cover Image that fails to load falls back to the design's photo, not a broken image. */
 const failed = ref(false)
@@ -60,11 +62,11 @@ const guestFs = useFitSize(() => props.guestName, '--font-cover-guest', 30, SAFE
       </h1>
 
       <button type="button" class="cover__monogram" @click="$emit('open')">
-        <span class="sr-only">Buka undangan</span>
+        <span class="sr-only">{{ text.openInvitation }}</span>
         <img :src="monogram" alt="" width="660" height="660" />
       </button>
 
-      <p class="cover__dear">kepada Yth.</p>
+      <p class="cover__dear">{{ text.coverDear }}</p>
       <p class="cover__guest" :style="{ '--fs': guestFs }">{{ guestName }}</p>
     </div>
   </section>

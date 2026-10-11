@@ -7,7 +7,7 @@ import { useToast } from '../../composables/useToast'
 
 const PAGE = 3
 const { show } = useToast()
-const { invite, live, guestName, sendWish } = useWedding()
+const { invite, live, guestName, hasGuestName, sendWish, text } = useWedding()
 
 /* getHome's ucapan list, plus anything posted this session on top. */
 const wishes = computed(() => invite.value.wishes)
@@ -24,14 +24,14 @@ const sending = ref(false)
 watch(
   guestName,
   (g) => {
-    if (g && g !== 'Nama Tamu' && !name.value) name.value = g
+    if (hasGuestName.value && !name.value) name.value = g
   },
   { immediate: true },
 )
 
 async function send() {
   if (!name.value.trim() || !message.value.trim()) {
-    show('Isi nama dan ucapan dulu')
+    show(text.value.wishFillIn)
     return
   }
   sending.value = true
@@ -39,9 +39,9 @@ async function send() {
     await sendWish({ guest_name: name.value.trim(), message: message.value.trim() })
     shown.value = Math.max(shown.value, PAGE)
     message.value = ''
-    show('Terima kasih atas ucapannya')
+    show(text.value.wishThanks)
   } catch (err: any) {
-    show(err?.message || 'Gagal mengirim ucapan. Coba lagi.')
+    show(err?.message || text.value.wishFailed)
   } finally {
     sending.value = false
   }
@@ -54,11 +54,11 @@ async function send() {
 
     <!-- Group 71 (2239:191) -->
     <form v-reveal:up="300" class="wish__form" @submit.prevent="send">
-      <label class="sr-only" for="wish-name">Nama</label>
-      <input id="wish-name" v-model="name" class="field field--name" placeholder="Name" autocomplete="name" />
-      <label class="sr-only" for="wish-message">Ucapan</label>
-      <textarea id="wish-message" v-model="message" class="field field--message" placeholder="Give your wish"></textarea>
-      <button type="submit" class="pill pill--send" :disabled="sending">{{ sending ? 'Sending…' : 'Send' }}</button>
+      <label class="sr-only" for="wish-name">{{ text.wishNameLabel }}</label>
+      <input id="wish-name" v-model="name" class="field field--name" :placeholder="text.wishNamePlaceholder" autocomplete="name" />
+      <label class="sr-only" for="wish-message">{{ text.wishLabel }}</label>
+      <textarea id="wish-message" v-model="message" class="field field--message" :placeholder="text.wishPlaceholder"></textarea>
+      <button type="submit" class="pill pill--send" :disabled="sending">{{ sending ? text.sending : text.send }}</button>
     </form>
 
     <ul v-if="wishes.length" class="wish__list" aria-live="polite">
@@ -71,10 +71,8 @@ async function send() {
 
     <!-- No wishes yet: an invitation to write the first, in the list's own space. -->
     <div v-else v-reveal:up="200" class="wish__empty" aria-live="polite">
-      <p class="wish__empty-title">Belum ada ucapan</p>
-      <p class="wish__empty-text">
-        Jadilah yang pertama mengirimkan doa dan ucapan terbaik untuk kedua mempelai.
-      </p>
+      <p class="wish__empty-title">{{ text.wishesEmptyTitle }}</p>
+      <p class="wish__empty-text">{{ text.wishesEmptyText }}</p>
     </div>
 
     <button
@@ -85,7 +83,7 @@ async function send() {
       :disabled="shown >= wishes.length"
       @click="shown += PAGE"
     >
-      Show more
+      {{ text.showMore }}
     </button>
   </SheetBand>
 </template>

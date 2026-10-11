@@ -2,6 +2,7 @@
 import { computed } from 'vue'
 import type { WeddingEvent } from '../../data/wedding'
 import { useFitSize } from '../../composables/useFitSize'
+import { useWedding } from '../../composables/useWedding'
 
 /*
  * One event: its heading above the oval frame and the text inside it. `y` is where the day
@@ -20,6 +21,7 @@ const props = defineProps<{
   mapsY: number
 }>()
 
+const { text } = useWedding()
 const title = computed(() => props.event.title || props.fallbackTitle)
 // Shrinks a long name ("Pemberkatan Nikah") to one line across the frame's width.
 const titleFs = useFitSize(title, '--font-event-title', props.titleSize, 690, { upper: true })
@@ -48,7 +50,7 @@ const timeFs = useFitSize(() => props.event.time, '--font-event-detail', 43.13, 
       <p v-reveal:up="1100" class="event__address">
         <span v-for="line in event.address" :key="line">{{ line }}</span>
       </p>
-      <a v-reveal:up="1250" class="event__maps" :href="event.mapsUrl" target="_blank" rel="noopener">LINK MAPS</a>
+      <a v-reveal:up="1250" class="event__maps" :href="event.mapsUrl" target="_blank" rel="noopener">{{ text.linkMaps }}</a>
     </div>
   </div>
 </template>

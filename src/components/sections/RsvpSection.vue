@@ -6,7 +6,7 @@ import { useToast } from '../../composables/useToast'
 import { useWedding } from '../../composables/useWedding'
 
 const { show } = useToast()
-const { slug, guestCode, guest, guestName, sendRsvp } = useWedding()
+const { slug, guestCode, guest, guestName, hasGuestName, sendRsvp, text } = useWedding()
 const form = reactive({ name: '', phone: '', attending: '' as '' | 'hadir' | 'tidak_hadir', guests: '' })
 const sending = ref(false)
 const sent = ref(false)
@@ -29,14 +29,14 @@ watch(
   [guest, guestName],
   ([g, name]) => {
     if (g?.has_rsvp) sent.value = true
-    if (!form.name && name && name !== 'Nama Tamu') form.name = name
+    if (!form.name && hasGuestName.value) form.name = name
   },
   { immediate: true },
 )
 
 async function send() {
   if (!form.name.trim() || !form.attending) {
-    show('Isi nama dan konfirmasi kehadiran')
+    show(text.value.rsvpFillIn)
     return
   }
   sending.value = true
@@ -53,9 +53,9 @@ async function send() {
       // Losing the receipt only means the form reopens on reload.
     }
     sent.value = true
-    show(form.attending === 'hadir' ? 'Terima kasih, sampai jumpa!' : 'Terima kasih atas konfirmasinya')
+    show(form.attending === 'hadir' ? text.value.rsvpThanksYes : text.value.rsvpThanksNo)
   } catch (err: any) {
-    show(err?.message || 'Gagal mengirim konfirmasi. Coba lagi.')
+    show(err?.message || text.value.rsvpFailed)
   } finally {
     sending.value = false
   }
@@ -68,20 +68,20 @@ async function send() {
 
     <!-- Group 32 (2239:213) -->
     <form v-reveal:up="250" class="rsvp" @submit.prevent="send">
-      <label class="sr-only" for="rsvp-name">Nama</label>
-      <input id="rsvp-name" v-model="form.name" class="field" placeholder="Nama" autocomplete="name" />
+      <label class="sr-only" for="rsvp-name">{{ text.rsvpName }}</label>
+      <input id="rsvp-name" v-model="form.name" class="field" :placeholder="text.rsvpName" autocomplete="name" />
 
-      <label class="sr-only" for="rsvp-phone">No Hp</label>
-      <input id="rsvp-phone" v-model="form.phone" class="field" type="tel" placeholder="No Hp" autocomplete="tel" />
+      <label class="sr-only" for="rsvp-phone">{{ text.rsvpPhone }}</label>
+      <input id="rsvp-phone" v-model="form.phone" class="field" type="tel" :placeholder="text.rsvpPhone" autocomplete="tel" />
 
-      <label class="sr-only" for="rsvp-attending">Kehadiran</label>
+      <label class="sr-only" for="rsvp-attending">{{ text.rsvpAttendingLabel }}</label>
       <select id="rsvp-attending" v-model="form.attending" class="field" :class="{ 'is-empty': !form.attending }">
-        <option value="" disabled>Will you be joining us?</option>
-        <option value="hadir">Ya, saya akan hadir</option>
-        <option value="tidak_hadir">Maaf, tidak bisa hadir</option>
+        <option value="" disabled>{{ text.rsvpAttending }}</option>
+        <option value="hadir">{{ text.rsvpYes }}</option>
+        <option value="tidak_hadir">{{ text.rsvpNo }}</option>
       </select>
 
-      <label class="sr-only" for="rsvp-guests">Jumlah tamu</label>
+      <label class="sr-only" for="rsvp-guests">{{ text.rsvpGuestsLabel }}</label>
       <select
         id="rsvp-guests"
         v-model="form.guests"
@@ -89,12 +89,12 @@ async function send() {
         :class="{ 'is-empty': !form.guests }"
         :disabled="form.attending === 'tidak_hadir'"
       >
-        <option value="" disabled>Number of Guests:</option>
-        <option v-for="n in maxGuests" :key="n" :value="String(n)">{{ n }} orang</option>
+        <option value="" disabled>{{ text.rsvpGuests }}</option>
+        <option v-for="n in maxGuests" :key="n" :value="String(n)">{{ text.rsvpGuestCount(n) }}</option>
       </select>
 
       <button type="submit" class="rsvp__send" :disabled="sending || sent">
-        {{ sent ? 'Terima kasih, konfirmasi diterima' : sending ? 'Sending…' : 'Send' }}
+        {{ sent ? text.rsvpSent : sending ? text.sending : text.send }}
       </button>
     </form>
   </SheetBand>

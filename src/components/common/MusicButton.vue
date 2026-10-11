@@ -18,7 +18,7 @@ const playing = ref(false)
 let pausedByLeaving = false
 /** True while a video with sound has the song paused (useMusicHold). */
 let heldByVideo = false
-const { invite } = useWedding()
+const { invite, text } = useWedding()
 
 /* ---- intro skip + loop (native `loop` would replay the intro), as in TemaEnvelopMaroon ---- */
 
@@ -123,7 +123,7 @@ onBeforeUnmount(() => {
   <button
     type="button"
     class="floating-music"
-    :aria-label="playing ? 'Jeda musik' : 'Putar musik'"
+    :aria-label="playing ? text.pauseMusic : text.playMusic"
     :aria-pressed="playing ? 'true' : 'false'"
     @click="toggle"
   >

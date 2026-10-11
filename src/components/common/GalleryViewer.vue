@@ -5,8 +5,10 @@
  */
 import { nextTick, onBeforeUnmount, ref, watch } from 'vue'
 import { useGalleryViewer } from '../../composables/useGalleryViewer'
+import { useWedding } from '../../composables/useWedding'
 
 const { index, photos, close, view: step } = useGalleryViewer()
+const { text } = useWedding()
 const closeBtn = ref<HTMLButtonElement | null>(null)
 let returnFocus: Element | null = null
 let startX: number | null = null
@@ -50,7 +52,7 @@ function onUp(e: PointerEvent) {
       class="viewer"
       role="dialog"
       aria-modal="true"
-      aria-label="Galeri foto"
+      :aria-label="text.photoGallery"
       @click.self="close"
       @pointerdown="onDown"
       @pointerup="onUp"
@@ -59,10 +61,10 @@ function onUp(e: PointerEvent) {
         <img :key="index" :src="photos[index]" alt="" class="viewer__img" draggable="false" />
       </Transition>
 
-      <button ref="closeBtn" type="button" class="viewer__btn viewer__close" aria-label="Tutup" @click="close">×</button>
+      <button ref="closeBtn" type="button" class="viewer__btn viewer__close" :aria-label="text.close" @click="close">×</button>
       <template v-if="photos.length > 1">
-        <button type="button" class="viewer__btn viewer__prev" aria-label="Foto sebelumnya" @click="step(-1)">‹</button>
-        <button type="button" class="viewer__btn viewer__next" aria-label="Foto berikutnya" @click="step(1)">›</button>
+        <button type="button" class="viewer__btn viewer__prev" :aria-label="text.prevPhoto" @click="step(-1)">‹</button>
+        <button type="button" class="viewer__btn viewer__next" :aria-label="text.nextPhoto" @click="step(1)">›</button>
         <p class="viewer__count">{{ index + 1 }} / {{ photos.length }}</p>
       </template>
     </div>

@@ -6,14 +6,14 @@ import { useWedding } from '../../composables/useWedding'
 import { useToast } from '../../composables/useToast'
 
 const { show } = useToast()
-const { invite } = useWedding()
+const { invite, text } = useWedding()
 
-async function copy(text: string, what: string) {
+async function copy(value: string, what: string) {
   try {
-    await navigator.clipboard.writeText(text)
-    show(`${what} disalin`)
+    await navigator.clipboard.writeText(value)
+    show(what)
   } catch {
-    show('Gagal menyalin')
+    show(text.value.copyFailed)
   }
 }
 </script>
@@ -31,26 +31,26 @@ async function copy(text: string, what: string) {
         class="card card--bank"
       >
         <h3 class="card__title">{{ acc.bank }}</h3>
-        <p class="card__label card__label--number">Account Number</p>
+        <p class="card__label card__label--number">{{ text.accountNumber }}</p>
         <p class="card__value card__value--number">{{ acc.number }}</p>
-        <p class="card__label card__label--name">Account Name</p>
+        <p class="card__label card__label--name">{{ text.accountName }}</p>
         <p class="card__value card__value--name">{{ acc.holder }}</p>
-        <button type="button" class="card__copy" @click="copy(acc.number, 'Nomor rekening')">
+        <button type="button" class="card__copy" @click="copy(acc.number, text.copiedAccount)">
           <img :src="copyIcon" alt="" width="54" height="54" />
-          <span class="sr-only">Salin nomor rekening {{ acc.number }}</span>
+          <span class="sr-only">{{ text.copyAccountSr }} {{ acc.number }}</span>
         </button>
       </article>
 
       <!-- The rekening row whose bank is "kado" (qinvi convention), if the wedding has one. -->
       <article v-if="invite.giftAddress" v-reveal:up="invite.accounts.length * 200" class="card card--address">
-        <h3 class="card__title card__title--center">PENGIRIMAN KADO</h3>
-        <p class="card__label card__label--address">Alamat</p>
+        <h3 class="card__title card__title--center">{{ text.giftDelivery }}</h3>
+        <p class="card__label card__label--address">{{ text.address }}</p>
         <p class="card__address">{{ invite.giftAddress.address }}</p>
-        <p class="card__label card__label--recipient">Penerima</p>
+        <p class="card__label card__label--recipient">{{ text.recipient }}</p>
         <p class="card__value card__value--recipient">{{ invite.giftAddress.recipient }}</p>
-        <button type="button" class="card__copy card__copy--address" @click="copy(invite.giftAddress!.address, 'Alamat')">
+        <button type="button" class="card__copy card__copy--address" @click="copy(invite.giftAddress!.address, text.copiedAddress)">
           <img :src="copyIcon" alt="" width="54" height="54" />
-          <span class="sr-only">Salin alamat pengiriman kado</span>
+          <span class="sr-only">{{ text.copyAddressSr }}</span>
         </button>
       </article>
     </div>
