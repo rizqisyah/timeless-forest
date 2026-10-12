@@ -20,7 +20,12 @@ let pausedByLeaving = false
 let heldByVideo = false
 const { invite, text } = useWedding()
 
-/* ---- intro skip + loop (native `loop` would replay the intro), as in TemaEnvelopMaroon ---- */
+/*
+ * ---- intro skip + loop, as in TemaEnvelopMaroon ----
+ * The <audio> loops natively: iOS Safari may refuse the play() an `ended` handler would need
+ * (no user gesture, screen locked), but never stops a native loop. With an intro to skip, the
+ * song jumps back to `start` just before it ends, so the native loop never replays the intro.
+ */
 
 function seekTo(audio: HTMLAudioElement, t: number) {
   if (!(audio.duration > 0)) return
@@ -45,10 +50,13 @@ function onLoaded(e: Event) {
 function onTimeUpdate(e: Event) {
   const audio = e.target as HTMLAudioElement
   const start = startOf(audio)
-  const end = invite.value.music.end
+  const set = invite.value.music.end
+  // timeupdate fires every ~250 ms, so cut a little early rather than let the loop hit 0.
+  const end = set > start ? set : start > 0 ? audio.duration - 0.4 : 0
   if (audio.currentTime < start - 0.5 || (end > start && audio.currentTime >= end)) seekTo(audio, start)
 }
 
+/* Fallback for a browser that ignores `loop`. */
 function onEnded(e: Event) {
   const audio = e.target as HTMLAudioElement
   seekTo(audio, startOf(audio))
@@ -132,6 +140,7 @@ onBeforeUnmount(() => {
       ref="audioEl"
       :src="invite.music.url"
       preload="auto"
+      loop
       @loadedmetadata="onLoaded"
       @timeupdate="onTimeUpdate"
       @ended="onEnded"
